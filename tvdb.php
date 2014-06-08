@@ -77,8 +77,22 @@ class tvdb
 			}
 			if(isset($seriesinfo['Series'][0]))
 			{
-				$this->error.="Multiple matches for \"$search\" for language \"$language\"".$this->linebreak;
-				return false;
+				foreach($seriesinfo['Series'] as $key=>$series)
+				{
+					$id[$key]=$series['seriesid'];
+					$lang[$key]=$series['language'];
+				}
+				if($language=='all')
+					$returnlang=$this->lang; //If all languages are searched, use the preferred language for return
+				else
+					$returnlang=$language;
+				if(count(array_unique($id))==1 && ($key=array_search($returnlang,$lang))!==false) //If all matches are from the same series with different languages, return the requested language
+					$seriesinfo['Series']=$seriesinfo['Series'][$key];
+				else
+				{
+					$this->error.="Multiple matches for \"$search\" for language \"$language\"".$this->linebreak;
+					return false;
+				}
 			}
 			if(!isset($seriesinfo['Series']['seriesid']))
 			{

@@ -57,19 +57,17 @@ class tvdb
 		return simplexml_load_string($xmlstring);
 	}
 	
-	public function findseries($search,$language='all')
+	public function findseries($search,$language=false)
 	{
 		$key=$this->apikey;
+		if($language===false) //Default to preferred language
+			$language=$this->lang;
 		if($search=='')
-		{
-			$this->error.='findseries was called without specifying any series'.$this->linebreak;
-			return false;
-		}
+			die('getseries was called without specifying any series');
 		if(!is_numeric($search))
 		{	
 			$search=str_replace('its',"it's",$search);
 			$seriesinfo=$this->get_and_parse($url="http://www.thetvdb.com/api/GetSeries.php?language=$language&seriesname=".urlencode($search));
-			//var_dump(isset($seriesinfo['Series'][0]));
 			if($seriesinfo===false)
 			{
 				$this->error.="Error connecting to TheTVDB".$this->linebreak;
@@ -77,27 +75,39 @@ class tvdb
 			}
 			if(isset($seriesinfo['Series'][0]))
 			{
-				foreach($seriesinfo['Series'] as $key=>$series)
+				foreach($seriesinfo['Series'] as $series)
 				{
-					$id[$key]=$series['seriesid'];
-					$lang[$key]=$series['language'];
+					if($series['language']==$this->lang) //Find the first match in the preferred language
+						break;
+					else
+						$series=false;
 				}
-				if($language=='all')
-					$returnlang=$this->lang; //If all languages are searched, use the preferred language for return
-				else
-					$returnlang=$language;
-				if(count(array_unique($id))==1 && ($key=array_search($returnlang,$lang))!==false) //If all matches are from the same series with different languages, return the requested language
-					$seriesinfo['Series']=$seriesinfo['Series'][$key];
-				else
+				if($series===false)
 				{
-					$this->error.="Multiple matches for \"$search\" for language \"$language\"".$this->linebreak;
+					$this->error.="Multiple matches found, none of them in the preferred language ({$this->lang})".$this->linebreak;
 					return false;
 				}
+				else
+				{
+					$this->error.="Multiple matches found, returning the first match in the preferred language ({$this->lang})".$this->linebreak;
+					$seriesinfo['Series']=$series;
+				}
 			}
-			if(!isset($seriesinfo['Series']['seriesid']))
+			elseif(!isset($seriesinfo['Series']['seriesid']))
 			{
-				$this->error.="Series not found on TheTVDB: $search".$this->linebreak;
-				return false;
+				if($lang!='all')
+				{
+					echo "Series not found in preferred language, trying all".$this->linebreak;;
+					$episodes=$this->findseries($search,'all'); //Retry search in all languages
+
+					if($episodes===false)
+					{
+						echo "Series not found on TheTVDB".$this->linebreak;
+						return false;
+					}
+					else
+						return $episodes;
+				}
 			}
 			$id=$seriesinfo['Series']['seriesid'];
 		}
@@ -106,16 +116,14 @@ class tvdb
 
 		if(is_numeric($id)) //Hvis id er funnet, hent episoder
 		{
-			$episodes=$this->getseries($id,$this->lang);
 
+			$episodes=$this->getseries($id,$this->lang);
 			if(($episodes===false || $episodes->Series->SeriesName=='') && ($episodes=$this->getseries($id))===false) //If information was not found in the preferred language, try English
 			{
 				$this->error.="Could not find episodes for the series".$this->linebreak;
 				return false;
 			}
 			$episoder=json_decode(json_encode($episodes),true);
-			//echo "Episoder: ";
-			//var_dump($episoder);
 			return $episoder;
 		}
 	}

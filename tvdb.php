@@ -21,7 +21,15 @@ class tvdb
 		$this->http_status = curl_getinfo($this->ch, CURLINFO_HTTP_CODE);
 
 		if($this->http_status!=200)
+		{
+			$this->error.="HTTP request returned code {$this->http_status}".$this->linebreak;
 			return false;
+		}
+		elseif(empty($data))
+		{
+			$this->error.="Request returned empty response".$this->linebreak;
+			return false;
+		}
 		else
 			return $data;
 	}
@@ -70,7 +78,7 @@ class tvdb
 			$seriesinfo=$this->get_and_parse($url="http://www.thetvdb.com/api/GetSeries.php?language=$language&seriesname=".urlencode($search));
 			if($seriesinfo===false)
 			{
-				$this->error.="Error connecting to TheTVDB".$this->linebreak;
+				$this->error.="Error connecting to TheTVDB ({$this->http_status})".$this->linebreak;
 				return false;
 			}
 			if(isset($seriesinfo['Series'][0]))

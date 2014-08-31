@@ -44,7 +44,7 @@ class tvdb
 	private function getseries($id,$language='en') //Get a series by id
 	{
 		$file="series/$id/all/$language.xml";
-		$cachefile='cache/'.$file;
+		$cachefile=dirname(__FILE__).'/cache/'.$file;
 		if(!file_exists($cachefile))
 		{
 			$url="http://www.thetvdb.com/api/{$this->apikey}/".$file;

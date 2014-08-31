@@ -103,7 +103,7 @@ class tvdb
 			}
 			elseif(!isset($seriesinfo['Series']['seriesid']))
 			{
-				if($lang!='all')
+				if($language!='all')
 				{
 					echo "Series not found in preferred language, trying all".$this->linebreak;;
 					$episodes=$this->findseries($search,'all'); //Retry search in all languages

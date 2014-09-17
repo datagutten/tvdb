@@ -190,7 +190,7 @@ class tvdb
 	public function link($episode,$urlonly=true)
 	{
 		if($urlonly)
-			return "http://www.thetvdb.com/?tab=episode&seriesid={$episode['seriesid']}$&seasonid={$episode['seasonid']}&id={$episode['id']}";
+			return "http://www.thetvdb.com/?tab=episode&seriesid={$episode['seriesid']}&seasonid={$episode['seasonid']}&id={$episode['id']}";
 	}
 
 }

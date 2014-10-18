@@ -116,6 +116,8 @@ class tvdb
 					else
 						return $episodes;
 				}
+				else
+					return false;
 			}
 			$id=$seriesinfo['Series']['seriesid'];
 		}

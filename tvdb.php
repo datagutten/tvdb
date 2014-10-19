@@ -41,8 +41,10 @@ class tvdb
 		else
 			return json_decode(json_encode(simplexml_load_string($string)),true);
 	}
-	private function getseries($id,$language='en') //Get a series by id
+	private function getseries($id,$language) //Get a series by id
 	{
+		if($language===false) //Default to preferred language
+			$language=$this->lang;
 		$file="series/$id/all/$language.xml";
 		$cachefile=dirname(__FILE__).'/cache/'.$file;
 		if(!file_exists($cachefile))
@@ -70,8 +72,8 @@ class tvdb
 		$key=$this->apikey;
 		if($language===false) //Default to preferred language
 			$language=$this->lang;
-		if($search=='')
-			die('getseries was called without specifying any series');
+		if(empty($search))
+			trigger_error('findseries was called without specifying any series',E_USER_ERROR);
 		if(!is_numeric($search))
 		{	
 			$search=str_replace('its',"it's",$search);
@@ -126,9 +128,8 @@ class tvdb
 
 		if(is_numeric($id)) //Hvis id er funnet, hent episoder
 		{
-
-			$episodes=$this->getseries($id,$this->lang);
-			if(($episodes===false || $episodes->Series->SeriesName=='') && ($episodes=$this->getseries($id))===false) //If information was not found in the preferred language, try English
+			$episodes=$this->getseries($id,$language);
+			if(($episodes===false || $episodes->Series->SeriesName=='') && ($episodes=$this->getseries($id,'en'))===false) //If information was not found in the specified language, try English
 			{
 				$this->error.="Could not find episodes for the series".$this->linebreak;
 				return false;

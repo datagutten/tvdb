@@ -147,13 +147,12 @@ class tvdb
 		{
 			foreach ($serie['Episode'] as $episodedata) //Gå gjennom alle episoder i alle sesonger til riktig episode blir funnet
 				if ($episodedata['SeasonNumber']==$sesong && $episodedata['EpisodeNumber']==$episode)
-					break;
-
-			$return=array('Episode'=>$episodedata,'Series'=>$serie['Series']);
+					return array('Episode'=>$episodedata,'Series'=>$serie['Series']);
+			$this->error.="Episode not found. Try clearing cache if it is a new episode".$this->linebreak;
+			return false; //If the loop has completed without returning, the episode is not found
 		}
 		else
-			$return=false;
-	return $return;
+			return false;
 	}
 	public function banner($serie)
 	{

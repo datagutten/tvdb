@@ -189,10 +189,12 @@ class tvdb
 			$return=false;
 		return $return;
 	}
-	public function link($episode,$urlonly=true)
+	public function link($info)
 	{
-		if($urlonly)
-			return "http://www.thetvdb.com/?tab=episode&seriesid={$episode['seriesid']}&seasonid={$episode['seasonid']}&id={$episode['id']}";
+		if(isset($info['Episode'][0])) //Entire series
+			return "http://www.thetvdb.com/index.php?id={$info['Series']['id']}";
+		else
+			return "http://www.thetvdb.com/?tab=episode&seriesid={$info['Episode']['seriesid']}&seasonid={$info['Episode']['seasonid']}&id={$info['Episode']['id']}"; //Single episode
 	}
 
 }

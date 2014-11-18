@@ -191,6 +191,8 @@ class tvdb
 	}
 	public function link($info)
 	{
+		if(!isset($info['Episode']) && isset($info['seriesid']))
+			$info['Episode']=$info;
 		if(isset($info['Episode'][0])) //Entire series
 			return "http://www.thetvdb.com/index.php?id={$info['Series']['id']}";
 		else

@@ -198,5 +198,17 @@ class tvdb
 		else
 			return "http://www.thetvdb.com/?tab=episode&seriesid={$info['Episode']['seriesid']}&seasonid={$info['Episode']['seasonid']}&id={$info['Episode']['id']}"; //Single episode
 	}
+	public function episodename($tvdbinfo)
+	{
+		if(!isset($tvdbinfo['Episode']))
+			return false;
+
+		$episodename='S'.str_pad($tvdbinfo['Episode']['Combined_season'],2,'0',STR_PAD_LEFT).
+		             'E'.str_pad($tvdbinfo['Episode']['EpisodeNumber']  ,2,'0',STR_PAD_LEFT);
+		if(!empty($tvdbinfo['Episode']['EpisodeName']))
+			$episodename.=' - '.$tvdbinfo['Episode']['EpisodeName'];
+
+		return $episodename;
+	}
 
 }

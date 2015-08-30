@@ -162,7 +162,7 @@ class tvdb
 			$xml=$this->get_and_parse("http://www.thetvdb.com/api/GetSeries.php?seriesname=$serie&language=all");
 		}
 	
-		if(isset($xml['Series']['banner']))
+		if(!empty($xml['Series']['banner']))
 			$banner="http://thetvdb.com/banners/{$xml['Series']['banner']}";
 		else
 			$banner=false;

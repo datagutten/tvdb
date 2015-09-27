@@ -4,9 +4,9 @@ class tvdb
 	public $apikey;
 	private $ch;
 	private $http_status;
-	private $linebreak="\n";
 	public $lang='no';
 	public $error='';
+	public $debug=false; //Set to true to show debug info
 	function __construct($apikey)
 	{
 		$this->ch=curl_init();
@@ -22,12 +22,12 @@ class tvdb
 
 		if($this->http_status!=200)
 		{
-			$this->error.="HTTP request returned code {$this->http_status}".$this->linebreak;
+			$this->error=sprintf('HTTP request returned code %s',$this->http_status);
 			return false;
 		}
 		elseif(empty($data))
 		{
-			$this->error.="Request returned empty response".$this->linebreak;
+			$this->error='HTTP request returned empty response';
 			return false;
 		}
 		else
@@ -57,10 +57,7 @@ class tvdb
 			if(($xmlstring=$this->get($url))!==false)
 				file_put_contents($cachefile,$xmlstring);
 			else
-			{
-				$this->error="Error fetching data from TVDB".$this->linebreak;
 				return false;
-			}
 		}
 		else
 			$xmlstring=file_get_contents($cachefile);
@@ -80,7 +77,7 @@ class tvdb
 			$seriesinfo=$this->get_and_parse($url="http://www.thetvdb.com/api/GetSeries.php?language=$language&seriesname=".urlencode($search));
 			if($seriesinfo===false)
 			{
-				$this->error.="Error connecting to TheTVDB ({$this->http_status})".$this->linebreak;
+				$this->error=sprintf('Error connecting to TheTVDB HTTP status code %s',$this->http_status);
 				return false;
 			}
 			if(isset($seriesinfo['Series'][0]))
@@ -94,12 +91,13 @@ class tvdb
 				}
 				if($series===false)
 				{
-					$this->error.="Multiple matches found, none of them in the preferred language ({$this->lang})".$this->linebreak;
+					$this->error=sprintf('Multiple matches found, none of them in the preferred language (%s)',$this->lang);
 					return false;
 				}
 				else
 				{
-					$this->error.="Multiple matches found, returning the first match in the preferred language ({$this->lang})".$this->linebreak;
+					if($this->debug)
+						$this->error=sprintf('Multiple matches found, returning the first match in the preferred language (%s)',$this->lang);
 					$seriesinfo['Series']=$series;
 				}
 			}
@@ -107,12 +105,13 @@ class tvdb
 			{
 				if($language!='all')
 				{
-					echo "Series not found in preferred language ({$this->lang}), trying all".$this->linebreak;
+					if($this->debug)
+						$this->error=sprintf('Series not found in preferred language (%s), trying all',$this->lang);
 					$episodes=$this->findseries($search,'all'); //Retry search in all languages
 
 					if($episodes===false)
 					{
-						echo "Series not found on TheTVDB".$this->linebreak;
+						$this->error='Series not found on TheTVDB';
 						return false;
 					}
 					else
@@ -131,7 +130,7 @@ class tvdb
 			$episodes=$this->getseries($id,$language);
 			if(($episodes===false || $episodes->Series->SeriesName=='') && ($episodes=$this->getseries($id,'en'))===false) //If information was not found in the specified language, try English
 			{
-				$this->error.="Could not find episodes for the series".$this->linebreak;
+				$this->error='Could not find episodes for the series';
 				return false;
 			}
 			$episoder=json_decode(json_encode($episodes),true);
@@ -148,7 +147,8 @@ class tvdb
 			foreach ($serie['Episode'] as $episodedata) //Gå gjennom alle episoder i alle sesonger til riktig episode blir funnet
 				if ($episodedata['SeasonNumber']==$sesong && $episodedata['EpisodeNumber']==$episode)
 					return array('Episode'=>$episodedata,'Series'=>$serie['Series']);
-			$this->error.="Episode not found. Try clearing cache if it is a new episode".$this->linebreak;
+				else
+			$this->error='Episode not found. Try clearing cache if it is a new episode';
 			return false; //If the loop has completed without returning, the episode is not found
 		}
 		else

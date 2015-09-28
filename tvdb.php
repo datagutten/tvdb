@@ -139,20 +139,19 @@ class tvdb
 	}
 	public function finnepisode($serie,$sesong,$episode) //Finn informasjon om en episode
 	{
-		if (!is_array($serie))
+		if(!is_array($serie))
 			$serie=$this->findseries($serie);
-		
-		if(is_array($serie))
-		{
-			foreach ($serie['Episode'] as $episodedata) //Gå gjennom alle episoder i alle sesonger til riktig episode blir funnet
-				if ($episodedata['SeasonNumber']==$sesong && $episodedata['EpisodeNumber']==$episode)
-					return array('Episode'=>$episodedata,'Series'=>$serie['Series']);
-				else
-			$this->error='Episode not found. Try clearing cache if it is a new episode';
-			return false; //If the loop has completed without returning, the episode is not found
-		}
-		else
+		if($serie===false)
 			return false;
+
+		foreach ($serie['Episode'] as $episodedata) //Gå gjennom alle episoder i alle sesonger til riktig episode blir funnet
+		{
+			if($episodedata['SeasonNumber']==$sesong && $episodedata['EpisodeNumber']==$episode)
+				return array('Episode'=>$episodedata,'Series'=>$serie['Series']);
+		}
+		//If the loop has completed without returning, the episode is not found
+		$this->error='Episode not found. Try clearing cache if it is a new episode';
+		return false;
 	}
 	public function banner($serie)
 	{

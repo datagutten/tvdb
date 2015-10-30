@@ -153,16 +153,15 @@ class tvdb
 		$this->error='Episode not found. Try clearing cache if it is a new episode';
 		return false;
 	}
-	public function banner($serie)
+	public function banner($series)
 	{
-		if(!is_array($serie))
+		if(!is_array($series))
 		{
-			$serie=urlencode(str_replace('.',' ',$serie));
-			$xml=$this->get_and_parse("http://www.thetvdb.com/api/GetSeries.php?seriesname=$serie&language=all");
+			$series=urlencode(str_replace('.',' ',$series));
+			$series=$this->get_and_parse("http://www.thetvdb.com/api/GetSeries.php?seriesname=$serie&language=all");
 		}
-	
-		if(!empty($xml['Series']['banner']))
-			$banner="http://thetvdb.com/banners/{$xml['Series']['banner']}";
+		if(!empty($series['Series']['banner']))
+			$banner="http://thetvdb.com/banners/{$series['Series']['banner']}";
 		else
 			$banner=false;
 

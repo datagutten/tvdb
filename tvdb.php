@@ -1,22 +1,32 @@
 <?Php
 class tvdb
 {
-	public $apikey;
 	private $ch;
 	private $http_status;
-	public $lang='no';
+	public $lang;
 	public $error='';
 	public $debug=false; //Set to true to show debug info
-	function __construct($apikey)
+	private $headers=array();
+	private $search_languages;
+	public $last_search_language=false; //Language for the last search
+	function __construct()
 	{
 		$this->ch=curl_init();
 		curl_setopt($this->ch, CURLOPT_RETURNTRANSFER,1);	
 		curl_setopt($this->ch,CURLOPT_FOLLOWLOCATION,1);
-		$this->apikey=$apikey;
+		$this->headers=array('Content-Type: application/json');
+		curl_setopt($this->ch,CURLOPT_HTTPHEADER,$this->headers);
+
+		require 'config_tvdb.php';
+		$this->search_languages=$search_languages;
+		$this->lang=$default_language;
+		$this->login($api_key,$username,$user_key);
 	}
 	public function get($url)
 	{
 		curl_setopt($this->ch, CURLOPT_URL,$url);
+		curl_setopt($this->ch,CURLOPT_HTTPGET,true);
+		curl_setopt($this->ch,CURLOPT_HTTPHEADER,$this->headers);
 		$data=curl_exec($this->ch);		
 		$this->http_status = curl_getinfo($this->ch, CURLINFO_HTTP_CODE);
 
@@ -33,180 +43,233 @@ class tvdb
 		else
 			return $data;
 	}
-	public function get_and_parse($url)
+
+	//Send login request and store token
+	public function login($apikey,$username,$userkey)
 	{
-		$string=$this->get($url);
-		if($string===false)
+		$request=json_encode(array('apikey'=>$apikey,'username'=>$username,'userkey'=>$userkey));
+		curl_setopt($this->ch,CURLOPT_URL,'https://api.thetvdb.com/login');
+		curl_setopt($this->ch,CURLOPT_POSTFIELDS,$request);
+
+		$result_string=curl_exec($this->ch);
+		if($result_string===false)
 			return false;
-		else
-			return json_decode(json_encode(simplexml_load_string($string)),true);
+		$token=json_decode($result_string,true)['token'];
+		$this->headers['token']='Authorization: Bearer '.$token;
 	}
-	private function getseries($id,$language) //Get a series by id
+	
+	//Send and decode a request
+	public function request($uri,$language=false)
 	{
 		if($language===false) //Default to preferred language
 			$language=$this->lang;
-		$file="series/$id/all/$language.xml";
-		$cachefile=dirname(__FILE__).'/cache/'.$file;
-		if(!file_exists($cachefile))
-		{
-			$url="http://www.thetvdb.com/api/{$this->apikey}/".$file;
-	
-			if(!file_exists($dir=dirname($cachefile)))
-				mkdir($dir,0777,true);
-
-			if(($xmlstring=$this->get($url))!==false)
-				file_put_contents($cachefile,$xmlstring);
-			else
-				return false;
-		}
+		$this->headers['language']='Accept-Language: '.$language;
+		$result_string=$this->get('https://api.thetvdb.com'.$uri);
+		if($result_string!==false)
+			return json_decode($result_string,true);
 		else
-			$xmlstring=file_get_contents($cachefile);
-		return simplexml_load_string($xmlstring);
+			return false;
+	}
+
+	//Get a series by id
+	public function getseries($series_id,$language=false)
+	{
+		if(!is_numeric($series_id))
+			throw new Exception('Series ID must be numeric');
+		return $this->request('/series/'.$series_id,$language)['data'];
+	}
+
+	//Fetch and sort episodes for a series
+	public function getepisodes($series_id,$language=false)
+	{
+		if(!is_numeric($series_id))
+			throw new Exception('Series ID must be numeric');
+		$last_page=1;
+		$episodes=array(); //Initialize episodes array
+		for($page=1; $page<=$last_page; $page++)
+		{
+			$episodes_page=$this->request(sprintf('/series/%s/episodes?page=%s',$series_id,$page),$language);
+			if($episodes_page===false) //Request failed
+				return false;
+			$episodes=array_merge($episodes,$episodes_page['data']); //Merge new page to episodes array
+			$last_page=$episodes_page['links']['last'];
+		}
+
+		foreach($episodes as $episode)
+		{
+			//$episodes_sorted[$episode['airedSeason']][$episode['airedEpisodeNumber']]=$episode;
+			$key=sprintf('S%02dE%02d',$episode['airedSeason'],$episode['airedEpisodeNumber']);
+			$episodes_sorted[$key]=$episode;
+		}
+		ksort($episodes_sorted); //Sort episodes by key
+		return $episodes_sorted;
 	}
 	
+	//Search for a series
+	public function series_search($search,$language=false)
+	{
+		if(empty($search))
+		{
+			$this->error='findseries was called with empty search string';
+			return false;
+		}
+
+		$search=str_replace('its',"it's",$search);
+
+		if($language===false)
+		{
+			foreach($this->search_languages as $language) //Loop through languages until we get results
+			{
+				$seriesinfo=$this->request('/search/series?name='.urlencode($search),$language);
+				if($seriesinfo!==false)
+					break;
+			}
+		}
+		else
+			$seriesinfo=$this->request('/search/series?name='.urlencode($search),$language);
+
+		if($seriesinfo===false) //No match
+		{
+			$this->error='No series found for search '.$search;
+			return false;
+		}
+		$this->last_search_language=$language; //Save the search language
+		if(count($seriesinfo['data'])>1) //Multiple hits
+		{
+			foreach($seriesinfo['data'] as $series)
+			{
+				if($series['seriesName']==$search) //Try to find exact name match
+					return $series;
+			}
+			//If we are here there was no exact match
+			if($this->debug)
+				$this->error='Multiple matches found, but no exact name match. First result is returned';
+			return $seriesinfo['data'][0];
+		}
+		else //Single hit
+			return $seriesinfo['data'][0];
+	}
+
+	//Search for a series and get series information
+	//Return is getseries()
 	public function findseries($search,$language=false)
 	{
-		$key=$this->apikey;
-		if($language===false) //Default to preferred language
-			$language=$this->lang;
-		if(empty($search))
-			trigger_error('findseries was called without specifying any series',E_USER_ERROR);
-		if(!is_numeric($search))
-		{	
-			$search=str_replace('its',"it's",$search);
-			$seriesinfo=$this->get_and_parse($url="http://www.thetvdb.com/api/GetSeries.php?language=$language&seriesname=".urlencode($search));
-			if($seriesinfo===false)
-			{
-				$this->error=sprintf('Error connecting to TheTVDB HTTP status code %s',$this->http_status);
+		if(is_numeric($search))
+			return $this->getseries($search,$language);
+		else
+		{
+			$search_result=$this->series_search($search,$language);
+			if($search_result===false)
 				return false;
-			}
-			if(isset($seriesinfo['Series'][0]))
+			else
 			{
-				foreach($seriesinfo['Series'] as $series)
-				{
-					if($series['language']==$this->lang) //Find the first match in the preferred language
-						break;
-					else
-						$series=false;
-				}
-				if($series===false)
-				{
-					$this->error=sprintf('Multiple matches found, none of them in the preferred language (%s)',$this->lang);
-					return false;
-				}
-				else
-				{
-					if($this->debug)
-						$this->error=sprintf('Multiple matches found, returning the first match in the preferred language (%s)',$this->lang);
-					$seriesinfo['Series']=$series;
-				}
+				if($language===false) //Return results in the same language as the search
+					$language=$this->last_search_language;
+				return $this->getseries($search_result['id'],$language);
 			}
-			elseif(!isset($seriesinfo['Series']['seriesid']))
-			{
-				if($language!='all')
-				{
-					if($this->debug)
-						$this->error=sprintf('Series not found in preferred language (%s), trying all',$this->lang);
-					$episodes=$this->findseries($search,'all'); //Retry search in all languages
+		}
+	}
 
-					if($episodes===false)
-					{
-						$this->error='Series not found on TheTVDB';
-						return false;
-					}
-					else
-						return $episodes;
-				}
-				else
-					return false;
-			}
-			$id=$seriesinfo['Series']['seriesid'];
+	//Get series and episodes for a series ID
+	public function get_series_and_episodes($seriesid,$language=false)
+	{
+		$series['Series']=$this->getseries($seriesid,$language);
+		$series['Episode']=$this->getepisodes($seriesid,$language);
+		return $series;
+	}
+
+	//Find information about an episode
+	//$series can be series id, series name or an array returned by getepisodes()
+	public function episode_info($series,$season,$episode)
+	{
+		if(!is_array($series))
+		{
+			$series=$this->findseries($series);
+			if($series===false)
+				return false;
+		
+			$episodes=$this->getepisodes($series['id']);
+			if($episodes===false)
+				return false;
 		}
 		else
-			$id=$search;
+			$episodes=$series;
 
-		if(is_numeric($id)) //Hvis id er funnet, hent episoder
+		$epname=sprintf('S%02dE%02d',$season,$episode);
+		if(isset($episodes[$epname]))
+			return $episodes[$epname];
+		else
 		{
-			$episodes=$this->getseries($id,$language);
-			if(($episodes===false || $episodes->Series->SeriesName=='') && ($episodes=$this->getseries($id,'en'))===false) //If information was not found in the specified language, try English
-			{
-				$this->error='Could not find episodes for the series';
-				return false;
-			}
-			$episoder=json_decode(json_encode($episodes),true);
-			return $episoder;
-		}
-	}
-	public function finnepisode($serie,$sesong,$episode) //Finn informasjon om en episode
-	{
-		if(!is_array($serie))
-			$serie=$this->findseries($serie);
-		if($serie===false)
+			$this->error=sprintf('%s not found',$epname);
 			return false;
-
-		foreach ($serie['Episode'] as $episodedata) //Gå gjennom alle episoder i alle sesonger til riktig episode blir funnet
-		{
-			if($episodedata['SeasonNumber']==$sesong && $episodedata['EpisodeNumber']==$episode)
-				return array('Episode'=>$episodedata,'Series'=>$serie['Series']);
 		}
-		//If the loop has completed without returning, the episode is not found
-		$this->error='Episode not found. Try clearing cache if it is a new episode';
-		return false;
 	}
+
+	//Get series banner
 	public function banner($series)
 	{
 		if(!is_array($series))
 		{
-			$series=urlencode(str_replace('.',' ',$series));
-			$series=$this->get_and_parse("http://www.thetvdb.com/api/GetSeries.php?seriesname=$serie&language=all");
+			$series=$this->findseries($series);
+			if($series===false)
+				return false;
 		}
-		if(!empty($series['Series']['banner']))
-			$banner="http://thetvdb.com/banners/{$series['Series']['banner']}";
-		else
-			$banner=false;
 
-		return $banner;
+		if(!empty($series['banner']))
+			return "http://thetvdb.com/banners/{$series['banner']}";
+		else
+			return false;
 	}
-	public function finnepisodenavn($find,$episoder)
+
+	//Find episode by name
+	public function find_episode_by_name($episodes,$search)
 	{
-		$found=false;
-		//print_r($episoder);
-		foreach ($episoder['Episode'] as $episode)
+		if(!is_array($episodes))
 		{
-			if(is_array($episode['EpisodeName'])) //Skip episodes with no name
-				continue;
-			if(stripos($episode['EpisodeName'],$find)!==false)
+			$series=$this->findseries($episodes);
+			if($series===false)
+				return false;
+			$episodes=$this->getepisodes($series['id']);
+			if($episodes===false)
+				return false;
+		}
+
+		$names=array_combine(array_keys($episodes),array_column($episodes,'episodeName'));
+		$names=array_filter($names); //Remove episodes without name
+
+		foreach ($names as $episode=>$name)
+		{
+			if(stripos($name,$search)!==false)
 			{
-				$found=true;
-				break;
+				return $episodes[$episode];
 			}
 		}
-		if($found)
-			$return=array('Episode'=>$episode,'Series'=>$episoder['Series']);
-		else
-			$return=false;
-		return $return;
+		return false; //If loop has completed without returning there is no match
 	}
-	public function link($info)
-	{
-		if(!isset($info['Episode']) && isset($info['seriesid']))
-			$info['Episode']=$info;
-		if(isset($info['Episode'][0])) //Entire series
-			return "http://www.thetvdb.com/index.php?id={$info['Series']['id']}";
-		else
-			return "http://www.thetvdb.com/?tab=episode&seriesid={$info['Episode']['seriesid']}&seasonid={$info['Episode']['seasonid']}&id={$info['Episode']['id']}"; //Single episode
-	}
-	public function episodename($tvdbinfo)
-	{
-		if(!isset($tvdbinfo['Episode']))
-			return false;
 
-		$episodename='S'.str_pad($tvdbinfo['Episode']['Combined_season'],2,'0',STR_PAD_LEFT).
-		             'E'.str_pad($tvdbinfo['Episode']['EpisodeNumber']  ,2,'0',STR_PAD_LEFT);
-		if(!empty($tvdbinfo['Episode']['EpisodeName']))
-			$episodename.=' - '.$tvdbinfo['Episode']['EpisodeName'];
+	//Create link to an episode or series
+	public function link($info,$series_id=false)
+	{
+		if(!isset($info['Episode'])) //Single episode
+		{
+			$info['Episode']=$info;
+			$info['Episode']['seriesid']=$series_id;
+			return "http://www.thetvdb.com/?tab=episode&seriesid={$info['Episode']['seriesid']}&seasonid={$info['Episode']['airedSeasonID']}&id={$info['Episode']['id']}";
+		}
+		else //Entire series
+			return "http://www.thetvdb.com/index.php?id={$info['Series']['id']}";	 
+	}
+
+	//Format episode number and name from episode array
+	public function episodename($episode)
+	{
+
+		if(!isset($episode['airedEpisodeNumber']))
+			return false;
+		$episodename=sprintf('S%02dE%02d',$episode['airedSeason'],$episode['airedEpisodeNumber']);
+		if(!empty($episode['episodeName']))
+			$episodename.=' - '.$episode['episodeName'];
 
 		return $episodename;
 	}
-
 }

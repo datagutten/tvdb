@@ -29,8 +29,12 @@ class tvdb
 		curl_setopt($this->ch,CURLOPT_HTTPHEADER,$this->headers);
 		$data=curl_exec($this->ch);		
 		$this->http_status = curl_getinfo($this->ch, CURLINFO_HTTP_CODE);
-
-		if($this->http_status!=200)
+		if($data===false)
+		{
+			$this->error=curl_error($this->ch);
+			return false;
+		}
+		elseif($this->http_status!=200)
 		{
 			$this->error=sprintf('HTTP request returned code %s',$this->http_status);
 			return false;
@@ -68,6 +72,7 @@ class tvdb
 		if($result_string!==false)
 			return json_decode($result_string,true);
 		else
+			//throw new Exception('Result is false');
 			return false;
 	}
 
@@ -76,12 +81,19 @@ class tvdb
 	{
 		if(!is_numeric($series_id))
 			throw new Exception('Series ID must be numeric');
-		return $this->request('/series/'.$series_id,$language)['data'];
+		$response=$this->request('/series/'.$series_id,$language);
+		if($response===false) //Request has failed
+			return false;
+		else
+			return $response['data'];
 	}
 
 	//Fetch and sort episodes for a series
 	public function getepisodes($series_id,$language=false)
 	{
+		if(empty($series_id))
+			throw new Exception('Series ID is empty');
+
 		if(!is_numeric($series_id))
 			throw new Exception('Series ID must be numeric');
 		$last_page=1;

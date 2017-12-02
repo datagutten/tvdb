@@ -206,7 +206,10 @@ class tvdb
 
 		$epname=sprintf('S%02dE%02d',$season,$episode);
 		if(isset($episodes[$epname]))
+		{
+			$episodes[$epname]['banner']=$this->banner($series);
 			return $episodes[$epname];
+		}
 		else
 		{
 			$this->error=sprintf('%s not found',$epname);

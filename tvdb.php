@@ -61,7 +61,7 @@ class tvdb
 		$token=json_decode($result_string,true)['token'];
 		$this->headers['token']='Authorization: Bearer '.$token;
 	}
-	
+
 	//Send and decode a request
 	public function request($uri,$language=false)
 	{
@@ -102,7 +102,11 @@ class tvdb
 		{
 			$episodes_page=$this->request(sprintf('/series/%s/episodes?page=%s',$series_id,$page),$language);
 			if($episodes_page===false) //Request failed
+			{
+				$this->error=sprintf('Fetching page %d failed with error: %s',$page,$this->error);
 				return false;
+			}
+				
 			$episodes=array_merge($episodes,$episodes_page['data']); //Merge new page to episodes array
 			$last_page=$episodes_page['links']['last'];
 		}
@@ -235,7 +239,11 @@ class tvdb
 			return false;
 		$names=array_combine(array_keys($episodes),array_column($episodes,'episodeName'));
 		$names=array_filter($names); //Remove episodes without name
-
+		if(empty($names))
+		{
+			$this->error=sprintf('No episodes have names in language: %s',$this->lang);
+			return false;
+		}
 		foreach ($names as $episode=>$name)
 		{
 			if(stripos($name,$search)!==false)
@@ -246,7 +254,9 @@ class tvdb
 				return $episode;
 			}
 		}
-		return false; //If loop has completed without returning there is no match
+		//If loop has completed without returning there is no match
+		$this->error='Unable to find episode with name: '.$search;
+		return false;
 	}
 
 	/*Create link to an episode

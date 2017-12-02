@@ -199,13 +199,10 @@ class tvdb
 			$series=$this->findseries($series);
 			if($series===false)
 				return false;
-		
-			$episodes=$this->getepisodes($series['id']);
-			if($episodes===false)
-				return false;
 		}
-		else
-			$episodes=$series;
+		$episodes=$this->getepisodes($series['id']);
+		if($episodes===false)
+			return false;
 
 		$epname=sprintf('S%02dE%02d',$season,$episode);
 		if(isset($episodes[$epname]))

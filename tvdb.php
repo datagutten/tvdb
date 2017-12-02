@@ -199,6 +199,7 @@ class tvdb
 		$episode=$this->request(sprintf('/series/%d/episodes/query?airedSeason=%d&airedEpisode=%d',$series_id,$season,$episode),$language);
 		if($episode===false)
 			return false;
+		$episode=$episode['data'][0]; //This search will always return one result
 		$episode['banner']=$this->banner($series_id);
 		$episode['series']=$series_id;
 		return $episode;

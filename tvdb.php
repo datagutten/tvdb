@@ -116,7 +116,7 @@ class tvdb
 		ksort($episodes_sorted); //Sort episodes by key
 		return $episodes_sorted;
 	}
-	
+
 	//Search for a series
 	public function series_search($search,$language=false)
 	{
@@ -192,29 +192,16 @@ class tvdb
 
 	//Find information about an episode
 	//$series can be series id, series name or an array returned by getepisodes()
-	public function episode_info($series,$season,$episode)
+	public function episode_info($series_id,$season,$episode,$language=false)
 	{
-		if(!is_array($series))
-		{
-			$series=$this->findseries($series);
-			if($series===false)
-				return false;
-		}
-		$episodes=$this->getepisodes($series['id']);
-		if($episodes===false)
+		if(!is_numeric($series_id) || !is_numeric($season) || !is_numeric($episode))
+			throw new Exception('Series id, season and episode must be numeric');
+		$episode=$this->request(sprintf('/series/%d/episodes/query?airedSeason=%d&airedEpisode=%d',$series_id,$season,$episode),$language);
+		if($episode===false)
 			return false;
-
-		$epname=sprintf('S%02dE%02d',$season,$episode);
-		if(isset($episodes[$epname]))
-		{
-			$episodes[$epname]['banner']=$this->banner($series);
-			return $episodes[$epname];
-		}
-		else
-		{
-			$this->error=sprintf('%s not found',$epname);
-			return false;
-		}
+		$episode['banner']=$this->banner($series_id);
+		$episode['series']=$series_id;
+		return $episode;
 	}
 
 	//Get series banner
@@ -234,18 +221,17 @@ class tvdb
 	}
 
 	//Find episode by name
-	public function find_episode_by_name($episodes,$search)
+	public function find_episode_by_name($series,$search)
 	{
-		if(!is_array($episodes))
+		if(!is_array($series))
 		{
-			$series=$this->findseries($episodes);
+			$series=$this->findseries($series);
 			if($series===false)
 				return false;
-			$episodes=$this->getepisodes($series['id']);
-			if($episodes===false)
-				return false;
 		}
-
+		$episodes=$this->getepisodes($series['id']);
+		if($episodes===false)
+			return false;
 		$names=array_combine(array_keys($episodes),array_column($episodes,'episodeName'));
 		$names=array_filter($names); //Remove episodes without name
 
@@ -253,29 +239,32 @@ class tvdb
 		{
 			if(stripos($name,$search)!==false)
 			{
-				return $episodes[$episode];
+				$episode=$episodes[$episode];
+				$episode['banner']=$this->banner($series);
+				$episode['series']=$series['id'];
+				return $episode;
 			}
 		}
 		return false; //If loop has completed without returning there is no match
 	}
 
-	//Create link to an episode or series
-	public function link($info,$series_id=false)
+	/*Create link to an episode
+	Argument should be an array of episode information (returned by episode_info or find_episode_by_name)
+	*/
+	public function episode_link($episode)
 	{
-		if(!isset($info['Episode'])) //Single episode
-		{
-			$info['Episode']=$info;
-			$info['Episode']['seriesid']=$series_id;
-			return "http://www.thetvdb.com/?tab=episode&seriesid={$info['Episode']['seriesid']}&seasonid={$info['Episode']['airedSeasonID']}&id={$info['Episode']['id']}";
-		}
-		else //Entire series
-			return "http://www.thetvdb.com/index.php?id={$info['Series']['id']}";	 
+		return sprintf('http://www.thetvdb.com/?tab=episode&seriesid=%d&seasonid=%d&id=%d',$episode['series'],$episode['airedSeasonID'],$episode['id']);
+	}
+
+	//Create link to a series
+	public function series_link($series_id)
+	{
+		return 'http://www.thetvdb.com/index.php?id='.$series_id;
 	}
 
 	//Format episode number and name from episode array
 	public function episodename($episode)
 	{
-
 		if(!isset($episode['airedEpisodeNumber']))
 			return false;
 		$episodename=sprintf('S%02dE%02d',$episode['airedSeason'],$episode['airedEpisodeNumber']);

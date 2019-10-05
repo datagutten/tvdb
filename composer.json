@@ -1,0 +1,16 @@
+{
+    "name": "datagutten/tvdb",
+    "description": "A class for working with the TVDB API v2",
+    "type": "library",
+    "require-dev": {
+        "phpunit/phpunit": "^8.4"
+    },
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "datagutten",
+            "email": "datagutten@datagutten.net"
+        }
+    ],
+    "require": {}
+}

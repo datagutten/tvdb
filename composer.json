@@ -12,5 +12,10 @@
             "email": "datagutten@datagutten.net"
         }
     ],
-    "require": {}
+    "require": {},
+    "autoload": {
+        "classmap": [
+            "tvdb.php"
+        ]
+    }
 }

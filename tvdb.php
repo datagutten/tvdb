@@ -174,7 +174,7 @@ class tvdb
      * Get series and episodes for a series ID
      * @param int $series_id Series ID
      * @param string $language Language
-     * @return mixed
+     * @return array
      * @throws Requests_Exception
      */
 	public function get_series_and_episodes($series_id, $language=null)
@@ -256,29 +256,49 @@ class tvdb
 		return false;
 	}
 
-	/*Create link to an episode
-	Argument should be an array of episode information (returned by episode_info or find_episode_by_name)
-	*/
-	public function episode_link($episode)
+    /**
+     * Create link to an episode
+     * @param array $episode Array of episode information (returned by episode_info or find_episode_by_name)
+     * @return string Link to the episode
+     */
+	public static function episode_link($episode)
 	{
 		return sprintf('http://www.thetvdb.com/?tab=episode&seriesid=%d&seasonid=%d&id=%d',$episode['series'],$episode['airedSeasonID'],$episode['id']);
 	}
 
-	//Create link to a series
-	public function series_link($series_id)
+    /**
+     * Create link to a series
+     * @param int $series_id Series id
+     * @return string Link to the series
+     */
+	public static function series_link($series_id)
 	{
 		return 'http://www.thetvdb.com/index.php?id='.$series_id;
 	}
 
-	//Format episode number and name from episode array
-	public function episodename($episode)
+    /**
+     * Format episode number and name from episode array
+     * @param array $episode Episode info
+     * @return string Formatted episode name
+     */
+	public static function episode_name($episode)
 	{
 		if(!isset($episode['airedEpisodeNumber']))
-			return false;
+			return null;
 		$episodename=sprintf('S%02dE%02d',$episode['airedSeason'],$episode['airedEpisodeNumber']);
 		if(!empty($episode['episodeName']))
 			$episodename.=' - '.$episode['episodeName'];
 
 		return $episodename;
 	}
+
+    /**
+     * @param array $episode Episode info
+     * @return string Formatted episode name
+     * @deprecated Use episode_name
+     */
+	public function episodename($episode)
+    {
+        return self::episode_name($episode);
+    }
 }

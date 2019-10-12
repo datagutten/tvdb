@@ -62,18 +62,23 @@ class tvdb
 		$this->headers['token']='Authorization: Bearer '.$token;
 	}
 
-	//Send and decode a request
-	public function request($uri,$language=false)
+    /**
+     * Send and decode a request
+     * @param string $uri URI (Appended to https://api.thetvdb.com)
+     * @param string $language Language
+     * @return array Response from TVDB as decoded json
+     * @throws Exception Unable to parse response
+     */
+	public function request($uri,$language=null)
 	{
-		if($language===false) //Default to preferred language
+		if(empty($language)) //Default to preferred language
 			$language=$this->lang;
 		$this->headers['language']='Accept-Language: '.$language;
 		$result_string=$this->get('https://api.thetvdb.com'.$uri);
 		if($result_string!==false)
 			return json_decode($result_string,true);
 		else
-			//throw new Exception('Result is false');
-			return false;
+			throw new Exception('Unable to parse response');
 	}
 
 	//Get a series by id
@@ -194,15 +199,20 @@ class tvdb
 		return $series;
 	}
 
-	//Find information about an episode
-	//$series can be series id, series name or an array returned by getepisodes()
-	public function episode_info($series_id,$season,$episode,$language=false)
+    /**
+     * Find information about an episode
+     * @param int $series_id Series id
+     * @param int $season Season number
+     * @param int $episode Episode number
+     * @param string $language Language
+     * @return array Episode info
+     * @throws Exception Unable to parse response
+     */
+	public function episode_info($series_id,$season,$episode,$language=null)
 	{
 		if(!is_numeric($series_id) || !is_numeric($season) || !is_numeric($episode))
-			throw new Exception('Series id, season and episode must be numeric');
+			throw new InvalidArgumentException('Series id, season and episode must be numeric');
 		$episode=$this->request(sprintf('/series/%d/episodes/query?airedSeason=%d&airedEpisode=%d',$series_id,$season,$episode),$language);
-		if($episode===false)
-			return false;
 		$episode=$episode['data'][0]; //This search will always return one result
 		$episode['banner']=$this->banner($series_id);
 		$episode['series']=$series_id;

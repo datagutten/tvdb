@@ -65,25 +65,25 @@ class tvdb
 			return $response['data'];
 	}
 
-	//Fetch and sort episodes for a series
-	public function getepisodes($series_id,$language=false)
+    /**
+     * Fetch and sort episodes for a series
+     * @param int $series_id Series ID
+     * @param string $language Language
+     * @return array Episode info
+     * @throws Requests_Exception
+     */
+	public function getepisodes($series_id,$language=null)
 	{
 		if(empty($series_id))
-			throw new Exception('Series ID is empty');
+			throw new InvalidArgumentException('Series ID is empty');
 
 		if(!is_numeric($series_id))
-			throw new Exception('Series ID must be numeric');
+			throw new InvalidArgumentException('Series ID must be numeric');
 		$last_page=1;
 		$episodes=array(); //Initialize episodes array
 		for($page=1; $page<=$last_page; $page++)
 		{
 			$episodes_page=$this->request(sprintf('/series/%s/episodes?page=%s',$series_id,$page),$language);
-			if($episodes_page===false) //Request failed
-			{
-				$this->error=sprintf('Fetching page %d failed with error: %s',$page,$this->error);
-				return false;
-			}
-				
 			$episodes=array_merge($episodes,$episodes_page['data']); //Merge new page to episodes array
 			$last_page=$episodes_page['links']['last'];
 		}
@@ -207,15 +207,18 @@ class tvdb
 			return false;
 	}
 
-	//Find episode by name
+    /**
+     * Find episode by name
+     * @param $series
+     * @param $search
+     * @return array|bool
+     * @throws Requests_Exception
+     */
 	public function find_episode_by_name($series,$search)
 	{
 		if(!is_array($series))
-		{
 			$series=$this->findseries($series);
-			if($series===false)
-				return false;
-		}
+
 		$episodes=$this->getepisodes($series['id']);
 		if($episodes===false)
 			return false;

@@ -99,48 +99,46 @@ class tvdb
 	}
 
 	//Search for a series
-	public function series_search($search,$language=false)
+	public function series_search($search,$language=null)
 	{
 		if(empty($search))
-		{
-			$this->error='findseries was called with empty search string';
-			return false;
-		}
+			throw new InvalidArgumentException('Empty search string');
 
 		$search=str_replace('its',"it's",$search);
-
-		if($language===false)
-		{
-			foreach($this->search_languages as $language) //Loop through languages until we get results
-			{
-				$seriesinfo=$this->request('/search/series?name='.urlencode($search),$language);
-				if($seriesinfo!==false)
-					break;
-			}
-		}
+		if(!empty($language))
+		    $languages = [$language];
 		else
-			$seriesinfo=$this->request('/search/series?name='.urlencode($search),$language);
+		    $languages = $this->search_languages;
 
-		if($seriesinfo===false) //No match
+		foreach ($languages as $language)
+        {
+            $series_info = $this->request('/search/series?name=' . urlencode($search), $language);
+            if(!empty($series_info))
+                break;
+        }
+
+		if(empty($series_info)) //No match
 		{
-			$this->error='No series found for search '.$search;
-			return false;
+		    if($this->debug)
+			    echo 'No series found for search '.$search;
+		    return null;
 		}
+
 		$this->last_search_language=$language; //Save the search language
-		if(count($seriesinfo['data'])>1) //Multiple hits
+		if(count($series_info['data'])>1) //Multiple hits
 		{
-			foreach($seriesinfo['data'] as $series)
+			foreach($series_info['data'] as $series)
 			{
 				if($series['seriesName']==$search) //Try to find exact name match
 					return $series;
 			}
 			//If we are here there was no exact match
 			if($this->debug)
-				$this->error='Multiple matches found, but no exact name match. First result is returned';
-			return $seriesinfo['data'][0];
+				echo 'Multiple matches found, but no exact name match. First result is returned';
+			return $series_info['data'][0];
 		}
 		else //Single hit
-			return $seriesinfo['data'][0];
+			return $series_info['data'][0];
 	}
 
 	//Search for a series and get series information

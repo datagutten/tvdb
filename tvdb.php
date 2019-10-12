@@ -53,16 +53,19 @@ class tvdb
         return json_decode($response->body,true);
 	}
 
-	//Get a series by id
-	public function getseries($series_id,$language=false)
+    /**
+     * Get a series by id
+     * @param int $series_id
+     * @param string $language
+     * @return array Series info
+     * @throws Requests_Exception
+     */
+	public function getseries($series_id,$language=null)
 	{
 		if(!is_numeric($series_id))
-			throw new Exception('Series ID must be numeric');
+			throw new InvalidArgumentException('Series ID must be numeric');
 		$response=$this->request('/series/'.$series_id,$language);
-		if($response===false) //Request has failed
-			return false;
-		else
-			return $response['data'];
+        return $response['data'];
 	}
 
     /**
@@ -98,7 +101,13 @@ class tvdb
 		return $episodes_sorted;
 	}
 
-	//Search for a series
+    /**
+     * Search for a series
+     * @param string $search Search string
+     * @param string $language
+     * @return array Series info
+     * @throws Requests_Exception
+     */
 	public function series_search($search,$language=null)
 	{
 		if(empty($search))
@@ -141,31 +150,37 @@ class tvdb
 			return $series_info['data'][0];
 	}
 
-	//Search for a series and get series information
-	//Return is getseries()
-	public function findseries($search,$language=false)
+    /**
+     * Search for a series and get series information
+     * @param string $search Search string
+     * @param string $language Language
+     * @return array Series info
+     * @throws Requests_Exception
+     */
+	public function findseries($search,$language=null)
 	{
 		if(is_numeric($search))
 			return $this->getseries($search,$language);
 		else
 		{
 			$search_result=$this->series_search($search,$language);
-			if($search_result===false)
-				return false;
-			else
-			{
-				if($language===false) //Return results in the same language as the search
-					$language=$this->last_search_language;
-				return $this->getseries($search_result['id'],$language);
-			}
+            if(empty($language)) //Return results in the same language as the search
+                $language=$this->last_search_language;
+            return $this->getseries($search_result['id'],$language);
 		}
 	}
 
-	//Get series and episodes for a series ID
-	public function get_series_and_episodes($seriesid,$language=false)
+    /**
+     * Get series and episodes for a series ID
+     * @param int $series_id Series ID
+     * @param string $language Language
+     * @return mixed
+     * @throws Requests_Exception
+     */
+	public function get_series_and_episodes($series_id, $language=null)
 	{
-		$series['Series']=$this->getseries($seriesid,$language);
-		$series['Episode']=$this->getepisodes($seriesid,$language);
+		$series['Series']=$this->getseries($series_id,$language);
+		$series['Episode']=$this->getepisodes($series_id,$language);
 		return $series;
 	}
 
@@ -189,20 +204,21 @@ class tvdb
 		return $episode;
 	}
 
-	//Get series banner
+    /**
+     * Get series banner
+     * @param $series
+     * @return string|null
+     * @throws Requests_Exception
+     */
 	public function banner($series)
 	{
 		if(!is_array($series))
-		{
 			$series=$this->findseries($series);
-			if($series===false)
-				return false;
-		}
 
 		if(!empty($series['banner']))
 			return "http://thetvdb.com/banners/{$series['banner']}";
 		else
-			return false;
+			return null;
 	}
 
     /**
@@ -218,8 +234,6 @@ class tvdb
 			$series=$this->findseries($series);
 
 		$episodes=$this->getepisodes($series['id']);
-		if($episodes===false)
-			return false;
 		$names=array_combine(array_keys($episodes),array_column($episodes,'episodeName'));
 		$names=array_filter($names); //Remove episodes without name
 		if(empty($names))

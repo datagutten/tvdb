@@ -12,7 +12,10 @@
             "email": "datagutten@datagutten.net"
         }
     ],
-    "require": {},
+    "require": {
+      "ext-json": "*",
+      "rmccue/requests": "^1.7"
+    },
     "autoload": {
         "classmap": [
             "tvdb.php"

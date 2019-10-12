@@ -1,8 +1,6 @@
 <?Php
 class tvdb
 {
-	private $ch;
-	private $http_status;
 	public $lang;
 	public $error='';
 	public $debug=false; //Set to true to show debug info
@@ -11,55 +9,29 @@ class tvdb
 	public $last_search_language=false; //Language for the last search
 	function __construct()
 	{
-		$this->ch=curl_init();
-		curl_setopt($this->ch, CURLOPT_RETURNTRANSFER,1);	
-		curl_setopt($this->ch,CURLOPT_FOLLOWLOCATION,1);
-		$this->headers=array('Content-Type: application/json');
-		curl_setopt($this->ch,CURLOPT_HTTPHEADER,$this->headers);
-
+		$this->headers['Content-Type'] = 'application/json';
 		require 'config_tvdb.php';
 		$this->search_languages=$search_languages;
 		$this->lang=$default_language;
 		$this->login($api_key,$username,$user_key);
 	}
-	public function get($url)
-	{
-		curl_setopt($this->ch, CURLOPT_URL,$url);
-		curl_setopt($this->ch,CURLOPT_HTTPGET,true);
-		curl_setopt($this->ch,CURLOPT_HTTPHEADER,$this->headers);
-		$data=curl_exec($this->ch);		
-		$this->http_status = curl_getinfo($this->ch, CURLINFO_HTTP_CODE);
-		if($data===false)
-		{
-			$this->error=curl_error($this->ch);
-			return false;
-		}
-		elseif($this->http_status!=200)
-		{
-			$this->error=sprintf('HTTP request returned code %s',$this->http_status);
-			return false;
-		}
-		elseif(empty($data))
-		{
-			$this->error='HTTP request returned empty response';
-			return false;
-		}
-		else
-			return $data;
-	}
 
-	//Send login request and store token
+    /**
+     * Send login request and store token
+     * @param $apikey
+     * @param $username
+     * @param $userkey
+     * @throws Requests_Exception
+     * @throws Requests_Exception_HTTP
+     */
 	public function login($apikey,$username,$userkey)
 	{
 		$request=json_encode(array('apikey'=>$apikey,'username'=>$username,'userkey'=>$userkey));
-		curl_setopt($this->ch,CURLOPT_URL,'https://api.thetvdb.com/login');
-		curl_setopt($this->ch,CURLOPT_POSTFIELDS,$request);
+		$response = Requests::post('https://api.thetvdb.com/login', $this->headers, $request);
+		$response->throw_for_status();
 
-		$result_string=curl_exec($this->ch);
-		if($result_string===false)
-			return false;
-		$token=json_decode($result_string,true)['token'];
-		$this->headers['token']='Authorization: Bearer '.$token;
+		$token=json_decode($response->body,true)['token'];
+		$this->headers['Authorization'] = 'Bearer '.$token;
 	}
 
     /**
@@ -67,18 +39,18 @@ class tvdb
      * @param string $uri URI (Appended to https://api.thetvdb.com)
      * @param string $language Language
      * @return array Response from TVDB as decoded json
-     * @throws Exception Unable to parse response
+     * @throws Requests_Exception HTTP error
      */
 	public function request($uri,$language=null)
 	{
 		if(empty($language)) //Default to preferred language
 			$language=$this->lang;
-		$this->headers['language']='Accept-Language: '.$language;
-		$result_string=$this->get('https://api.thetvdb.com'.$uri);
-		if($result_string!==false)
-			return json_decode($result_string,true);
-		else
-			throw new Exception('Unable to parse response');
+		$this->headers['Accept-Language'] = $language;
+		$response = Requests::get('https://api.thetvdb.com'.$uri, $this->headers);
+		if($response->status_code === 404)
+		    return null;
+		$response->throw_for_status();
+        return json_decode($response->body,true);
 	}
 
 	//Get a series by id

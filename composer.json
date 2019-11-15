@@ -19,6 +19,9 @@
     "autoload": {
         "classmap": [
             "tvdb.php"
-        ]
+        ],
+        "psr-4": {
+            "datagutten\\tvdb\\": "src"
+        }
     }
 }

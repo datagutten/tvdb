@@ -1,4 +1,7 @@
 <?Php
+
+use datagutten\tvdb\api_error;
+
 class tvdb
 {
 	public $lang;
@@ -21,14 +24,14 @@ class tvdb
      * @param $apikey
      * @param $username
      * @param $userkey
-     * @throws Requests_Exception
-     * @throws Requests_Exception_HTTP
+     * @throws api_error HTTP error from TVDB api
      */
 	public function login($apikey,$username,$userkey)
 	{
 		$request=json_encode(array('apikey'=>$apikey,'username'=>$username,'userkey'=>$userkey));
 		$response = Requests::post('https://api.thetvdb.com/login', $this->headers, $request);
-		$response->throw_for_status();
+        if(!$response->success)
+            throw new api_error($response);
 
 		$token=json_decode($response->body,true)['token'];
 		$this->headers['Authorization'] = 'Bearer '.$token;
@@ -39,7 +42,7 @@ class tvdb
      * @param string $uri URI (Appended to https://api.thetvdb.com)
      * @param string $language Language
      * @return array Response from TVDB as decoded json
-     * @throws Requests_Exception HTTP error
+     * @throws api_error HTTP error from TVDB api
      */
 	public function request($uri,$language=null)
 	{
@@ -49,7 +52,9 @@ class tvdb
 		$response = Requests::get('https://api.thetvdb.com'.$uri, $this->headers);
 		if($response->status_code === 404)
 		    return null;
-		$response->throw_for_status();
+		if(!$response->success)
+            throw new api_error($response);
+
         return json_decode($response->body,true);
 	}
 
@@ -58,7 +63,7 @@ class tvdb
      * @param int $series_id
      * @param string $language
      * @return array Series info
-     * @throws Requests_Exception
+     * @throws api_error HTTP error from TVDB api
      */
 	public function getseries($series_id,$language=null)
 	{
@@ -73,7 +78,7 @@ class tvdb
      * @param int $series_id Series ID
      * @param string $language Language
      * @return array Episode info
-     * @throws Requests_Exception
+     * @throws api_error HTTP error from TVDB api
      */
 	public function getepisodes($series_id,$language=null)
 	{
@@ -106,7 +111,7 @@ class tvdb
      * @param string $search Search string
      * @param string $language
      * @return array Series info
-     * @throws Requests_Exception
+     * @throws api_error HTTP error from TVDB api
      */
 	public function series_search($search,$language=null)
 	{
@@ -155,7 +160,7 @@ class tvdb
      * @param string $search Search string
      * @param string $language Language
      * @return array Series info
-     * @throws Requests_Exception
+     * @throws api_error HTTP error from TVDB api
      */
 	public function findseries($search,$language=null)
 	{
@@ -175,7 +180,7 @@ class tvdb
      * @param int $series_id Series ID
      * @param string $language Language
      * @return array
-     * @throws Requests_Exception
+     * @throws api_error HTTP error from TVDB api
      */
 	public function get_series_and_episodes($series_id, $language=null)
 	{
@@ -208,7 +213,7 @@ class tvdb
      * Get series banner
      * @param $series
      * @return string|null
-     * @throws Requests_Exception
+     * @throws api_error HTTP error from TVDB api
      */
 	public function banner($series)
 	{
@@ -226,7 +231,7 @@ class tvdb
      * @param $series
      * @param $search
      * @return array|bool
-     * @throws Requests_Exception
+     * @throws api_error HTTP error from TVDB api
      */
 	public function find_episode_by_name($series,$search)
 	{

@@ -219,11 +219,22 @@ class tvdb
 	{
 		if(!is_array($series))
 			$series=$this->findseries($series);
-
-		if(!empty($series['banner']))
-			return "http://thetvdb.com/banners/{$series['banner']}";
 		else
-			return null;
+        {
+            if(empty($series['banner']))
+                return null;
+            if (strpos($series['banner'], 'poster')!==false)
+            {
+                return sprintf('http://thetvdb.com/banners/graphical/%d-g.jpg', $series['id']);
+            }
+        }
+        if(empty($series['banner']))
+            return null;
+		$url = $series['banner'];
+		if($url[0] == '/')
+		    return 'http://thetvdb.com'.$url;
+		else
+            return "http://thetvdb.com/banners/{$series['banner']}";
 	}
 
     /**

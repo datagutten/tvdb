@@ -10,6 +10,11 @@ class tvdb
 	private $headers=array();
 	private $search_languages;
 	public $last_search_language=false; //Language for the last search
+
+	/**
+	 * tvdb constructor.
+	 * @throws api_error HTTP error from TVDB api
+	 */
 	function __construct()
 	{
 		$this->headers['Content-Type'] = 'application/json';
@@ -196,7 +201,7 @@ class tvdb
      * @param int $episode Episode number
      * @param string $language Language
      * @return array Episode info
-     * @throws Exception Unable to parse response
+     * @throws api_error HTTP error from TVDB api
      */
 	public function episode_info($series_id,$season,$episode,$language=null)
 	{

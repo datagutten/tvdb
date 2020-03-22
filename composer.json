@@ -17,9 +17,6 @@
       "rmccue/requests": "^1.7|dev-multipart-form-data@dev"
     },
     "autoload": {
-        "classmap": [
-            "tvdb.php"
-        ],
         "psr-4": {
             "datagutten\\tvdb\\": "src"
         }

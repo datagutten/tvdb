@@ -1,6 +1,9 @@
 <?Php
 
-use datagutten\tvdb\api_error;
+namespace datagutten\tvdb;
+
+use InvalidArgumentException;
+use Requests;
 
 class tvdb
 {

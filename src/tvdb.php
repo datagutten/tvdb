@@ -121,7 +121,7 @@ class tvdb
      * @return array Series info
      * @throws api_error HTTP error from TVDB api
      */
-	public function series_search($search,$language=null)
+	public function series_search($search,$language='')
 	{
 		if(empty($search))
 			throw new InvalidArgumentException('Empty search string');
@@ -170,7 +170,7 @@ class tvdb
      * @return array Series info
      * @throws api_error HTTP error from TVDB api
      */
-	public function findseries($search,$language=null)
+	public function findseries($search,$language='')
 	{
 		if(is_numeric($search))
 			return $this->getseries($search,$language);
@@ -206,7 +206,7 @@ class tvdb
      * @return array Episode info
      * @throws api_error HTTP error from TVDB api
      */
-	public function episode_info($series_id,$season,$episode,$language=null)
+	public function episode_info($series_id,$season,$episode,$language='')
 	{
 		if(!is_numeric($series_id) || !is_numeric($season) || !is_numeric($episode))
 			throw new InvalidArgumentException('Series id, season and episode must be numeric');

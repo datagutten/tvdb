@@ -40,7 +40,13 @@ class tvdb
 	public function login($apikey,$username,$userkey)
 	{
 		$request=json_encode(array('apikey'=>$apikey,'username'=>$username,'userkey'=>$userkey));
-		$response = Requests::post('https://api.thetvdb.com/login', $this->headers, $request);
+		try {
+            $response = Requests::post('https://api.thetvdb.com/login', $this->headers, $request);
+        }
+        catch (Requests_Exception $e)
+        {
+            throw new exceptions\tvdbException('Login failed: '.$e->getMessage(), 0, $e);
+        }
         if(!$response->success)
             throw new exceptions\api_error($response);
 

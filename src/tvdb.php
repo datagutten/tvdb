@@ -4,6 +4,7 @@ namespace datagutten\tvdb;
 
 use InvalidArgumentException;
 use Requests;
+use Requests_Exception;
 
 class tvdb
 {
@@ -16,7 +17,8 @@ class tvdb
 
 	/**
 	 * tvdb constructor.
-	 * @throws api_error HTTP error from TVDB api
+	 * @throws exceptions\api_error HTTP error from TVDB api
+     * @throws exceptions\tvdbException Other error
 	 */
 	function __construct()
 	{
@@ -32,14 +34,15 @@ class tvdb
      * @param $apikey
      * @param $username
      * @param $userkey
-     * @throws api_error HTTP error from TVDB api
+     * @throws exceptions\api_error HTTP error from TVDB api
+     * @throws exceptions\tvdbException Other error
      */
 	public function login($apikey,$username,$userkey)
 	{
 		$request=json_encode(array('apikey'=>$apikey,'username'=>$username,'userkey'=>$userkey));
 		$response = Requests::post('https://api.thetvdb.com/login', $this->headers, $request);
         if(!$response->success)
-            throw new api_error($response);
+            throw new exceptions\api_error($response);
 
 		$token=json_decode($response->body,true)['token'];
 		$this->headers['Authorization'] = 'Bearer '.$token;
@@ -50,7 +53,7 @@ class tvdb
      * @param string $uri URI (Appended to https://api.thetvdb.com)
      * @param string $language Language
      * @return array Response from TVDB as decoded json
-     * @throws api_error HTTP error from TVDB api
+     * @throws exceptions\api_error HTTP error from TVDB api
      */
 	public function request($uri,$language=null)
 	{
@@ -61,7 +64,7 @@ class tvdb
 		if($response->status_code === 404)
 		    return null;
 		if(!$response->success)
-            throw new api_error($response);
+            throw new exceptions\api_error($response);
 
         return json_decode($response->body,true);
 	}
@@ -71,7 +74,7 @@ class tvdb
      * @param int $series_id
      * @param string $language
      * @return array Series info
-     * @throws api_error HTTP error from TVDB api
+     * @throws exceptions\api_error HTTP error from TVDB api
      */
 	public function getseries($series_id,$language=null)
 	{
@@ -86,7 +89,7 @@ class tvdb
      * @param int $series_id Series ID
      * @param string $language Language
      * @return array Episode info
-     * @throws api_error HTTP error from TVDB api
+     * @throws exceptions\api_error HTTP error from TVDB api
      */
 	public function getepisodes($series_id,$language=null)
 	{
@@ -119,7 +122,7 @@ class tvdb
      * @param string $search Search string
      * @param string $language
      * @return array Series info
-     * @throws api_error HTTP error from TVDB api
+     * @throws exceptions\api_error HTTP error from TVDB api
      */
 	public function series_search($search,$language='')
 	{
@@ -168,7 +171,7 @@ class tvdb
      * @param string $search Search string
      * @param string $language Language
      * @return array Series info
-     * @throws api_error HTTP error from TVDB api
+     * @throws exceptions\api_error HTTP error from TVDB api
      */
 	public function findseries($search,$language='')
 	{
@@ -188,7 +191,7 @@ class tvdb
      * @param int $series_id Series ID
      * @param string $language Language
      * @return array
-     * @throws api_error HTTP error from TVDB api
+     * @throws exceptions\api_error HTTP error from TVDB api
      */
 	public function get_series_and_episodes($series_id, $language=null)
 	{
@@ -204,7 +207,7 @@ class tvdb
      * @param int $episode Episode number
      * @param string $language Language
      * @return array Episode info
-     * @throws api_error HTTP error from TVDB api
+     * @throws exceptions\api_error HTTP error from TVDB api
      */
 	public function episode_info($series_id,$season,$episode,$language='')
 	{
@@ -221,7 +224,7 @@ class tvdb
      * Get series banner
      * @param $series
      * @return string|null
-     * @throws api_error HTTP error from TVDB api
+     * @throws exceptions\api_error HTTP error from TVDB api
      */
 	public function banner($series)
 	{
@@ -250,7 +253,7 @@ class tvdb
      * @param $series
      * @param $search
      * @return array|bool
-     * @throws api_error HTTP error from TVDB api
+     * @throws exceptions\api_error HTTP error from TVDB api
      */
 	public function find_episode_by_name($series,$search)
 	{

@@ -1,13 +1,12 @@
 <?php
 
 
-namespace datagutten\tvdb;
+namespace datagutten\tvdb\exceptions;
 
 
-use Exception;
 use Requests_Response;
 
-class api_error extends Exception
+class api_error extends tvdbException
 {
     /**
      * @var Requests_Response
@@ -17,9 +16,9 @@ class api_error extends Exception
      * api_error constructor.
      * @param $response Requests_Response
      * @param int $code
-     * @param Exception|null $previous
+     * @param tvdbException|null $previous
      */
-    public function __construct($response, $code = 0, Exception $previous = null) {
+    public function __construct($response, $code = 0, tvdbException $previous = null) {
         $this->response = $response;
         $error = json_decode($response->body, true);
         $message = sprintf('Error from TVDB: %s', $error['Error']);

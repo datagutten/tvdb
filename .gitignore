@@ -1,5 +1,5 @@
 cache
-config_tvdb.php
+/config_tvdb.php
 
 /vendor/
 coverage_html

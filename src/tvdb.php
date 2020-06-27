@@ -2,6 +2,7 @@
 
 namespace datagutten\tvdb;
 
+use datagutten\tvdb\exceptions\tvdbException;
 use InvalidArgumentException;
 use Requests;
 use Requests_Exception;
@@ -9,7 +10,6 @@ use Requests_Exception;
 class tvdb
 {
 	public $lang;
-	public $error='';
 	public $debug=false; //Set to true to show debug info
 	private $headers=array();
 	public $last_search_language=false; //Language for the last search
@@ -271,6 +271,7 @@ class tvdb
      * @param string $language Search language
      * @return array|bool
      * @throws exceptions\api_error HTTP error from TVDB api
+     * @throws exceptions\tvdbException
      */
 	public function find_episode_by_name($series,$search, $language=null)
 	{
@@ -284,10 +285,8 @@ class tvdb
 		$names=array_combine(array_keys($episodes),array_column($episodes,'episodeName'));
 		$names=array_filter($names); //Remove episodes without name
 		if(empty($names))
-		{
-			$this->error=sprintf('No episodes have names in language: %s',$this->lang);
-			return false;
-		}
+			throw new tvdbException(sprintf('No episodes have names in language: %s',$language));
+
 		foreach ($names as $episode=>$name)
 		{
 			if(stripos($name,$search)!==false)
@@ -299,8 +298,7 @@ class tvdb
 			}
 		}
 		//If loop has completed without returning there is no match
-		$this->error='Unable to find episode with name: '.$search;
-		return false;
+        throw new tvdbException(sprintf('Unable to find episode with name "%s" in language "%s"', $search, $language));
 	}
 
     /**

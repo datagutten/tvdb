@@ -1,6 +1,8 @@
 <?php
-$api_key='';
-$username='';
-$user_key='';
-$default_language='no';
-$search_languages=array('no','en','sv','da');
+$config['api_key'] = '';
+$config['username'] = '';
+$config['user_key'] = '';
+$config['default_language'] = 'no'; // Default search language
+$config['search_languages'] = ['no', 'en', 'sv', 'da']; //Search languages in order
+
+return $config;

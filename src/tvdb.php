@@ -12,21 +12,31 @@ class tvdb
 	public $error='';
 	public $debug=false; //Set to true to show debug info
 	private $headers=array();
-	private $search_languages;
 	public $last_search_language=false; //Language for the last search
+    protected $config;
 
-	/**
-	 * tvdb constructor.
-	 * @throws exceptions\api_error HTTP error from TVDB api
+    /**
+     * tvdb constructor.
+     * @param array $config Configuration parameters: api_key, username, user_key, default_language, search_languages
+     * @throws exceptions\api_error HTTP error from TVDB api
      * @throws exceptions\tvdbException Other error
-	 */
-	function __construct()
+     */
+	function __construct($config = [])
 	{
 		$this->headers['Content-Type'] = 'application/json';
-		require 'config_tvdb.php';
-		$this->search_languages=$search_languages;
-		$this->lang=$default_language;
-		$this->login($api_key,$username,$user_key);
+		if(empty($config))
+		    $this->config = require 'config_tvdb.php';
+		else
+		    $this->config = $config;
+
+        if(empty($this->config['default_language']))
+            $this->config['default_language'] = 'en';
+
+		if(empty($this->config['search_languages']))
+            $this->config['search_languages'] = ['en'];
+
+		$this->lang=$this->config['default_language'];
+		$this->login($this->config['api_key'], $this->config['username'], $this->config['user_key']);
 	}
 
     /**
@@ -139,7 +149,7 @@ class tvdb
 		if(!empty($language))
 		    $languages = [$language];
 		else
-		    $languages = $this->search_languages;
+		    $languages = $this->config['search_languages'];
 
 		foreach ($languages as $language)
         {

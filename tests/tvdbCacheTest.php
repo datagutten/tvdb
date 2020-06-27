@@ -20,7 +20,7 @@ class tvdbCacheTest extends TestCase
             set_include_path(__DIR__.'/..');
         else
             set_include_path(__DIR__);
-		$this->tvdb = new tvdb_cache( __DIR__.'/test_data/cache');
+		$this->tvdb = new tvdb_cache();
 	}
 	public function testSeries_search()
 	{
@@ -36,14 +36,14 @@ class tvdbCacheTest extends TestCase
 		$this->assertEquals('2513911', $info['id']);
 		$this->assertEquals('Nerds of a Feather', $info['episodeName']);
 		$this->assertFileExists($this->tvdb->cache_dir.'/episode_info/episode_81848_2_56_.json');
-		$tvdb_hit = new tvdbCacheHitCheck(__DIR__.'/test_data/cache');
+		$tvdb_hit = new tvdbCacheHitCheck();
 		$tvdb_hit->episode_info(81848, 2, 56);
 	}
 
     public function testCacheNotHit()
     {
         $this->expectExceptionMessage('Cache not hit');
-        $tvdb_hit = new tvdbCacheHitCheck(__DIR__.'/test_data/cache');
+        $tvdb_hit = new tvdbCacheHitCheck();
         $tvdb_hit->episode_info(81848, 2, 56);
     }
 

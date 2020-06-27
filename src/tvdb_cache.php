@@ -10,14 +10,14 @@ class tvdb_cache extends tvdb
 {
 	public $cache_dir;
 	public $filesystem;
-	function __construct($cache_dir='')
+	function __construct($config = [])
 	{
-		parent::__construct();
+		parent::__construct($config);
 		$this->filesystem = new Filesystem();
-		if(empty($cache_dir))
+		if(empty($this->config['tvdb_cache_dir']))
 			$this->cache_dir = __DIR__.'/cache';
 		else
-			$this->cache_dir = $cache_dir;
+			$this->cache_dir = $this->config['tvdb_cache_dir'];
 
 		if(!file_exists($this->cache_dir))
 			$this->filesystem->mkdir($this->cache_dir);

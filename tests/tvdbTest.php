@@ -1,5 +1,7 @@
 <?php
+/** @noinspection PhpUnhandledExceptionInspection */
 
+namespace datagutten\tvdb\tests;
 
 use datagutten\tvdb\exceptions\api_error;
 use datagutten\tvdb\tvdb;

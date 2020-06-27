@@ -1,8 +1,8 @@
 <?php
-//require 'tvdbCacheHitCheck.php';
+/** @noinspection PhpUnhandledExceptionInspection */
 
-use datagutten\tvdb\tests\tvdbCacheHitCheck;
-use datagutten\tvdb\tvdb;
+namespace datagutten\tvdb\tests;
+
 use datagutten\tvdb\tvdb_cache;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;

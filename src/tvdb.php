@@ -25,7 +25,11 @@ class tvdb
 	{
 		$this->headers['Content-Type'] = 'application/json';
 		if(empty($config))
-		    $this->config = require 'config_tvdb.php';
+		{
+            $this->config = require 'config_tvdb.php';
+            if(empty($this->config) || !is_array($this->config))
+                throw new exceptions\tvdbException('Invalid config file');
+        }
 		else
 		    $this->config = $config;
 

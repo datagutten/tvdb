@@ -15,7 +15,8 @@
     "require": {
       "ext-json": "*",
       "rmccue/requests": "^1.7|dev-multipart-form-data@dev",
-      "symfony/filesystem": "^4|^5"
+      "symfony/filesystem": "^4|^5",
+      "php": ">=7.1"
     },
     "autoload": {
         "psr-4": {

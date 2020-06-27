@@ -140,7 +140,7 @@ class tvdb
      * @return array Series info
      * @throws exceptions\api_error HTTP error from TVDB api
      */
-	public function series_search($search,$language='')
+	public function series_search($search,$language=null)
 	{
 		if(empty($search))
 			throw new InvalidArgumentException('Empty search string');
@@ -189,7 +189,7 @@ class tvdb
      * @return array Series info
      * @throws exceptions\api_error HTTP error from TVDB api
      */
-	public function findseries($search,$language='')
+	public function findseries($search,$language=null)
 	{
 		if(is_numeric($search))
 			return $this->getseries($search,$language);
@@ -268,15 +268,19 @@ class tvdb
      * Find episode by name
      * @param $series
      * @param $search
+     * @param string $language Search language
      * @return array|bool
      * @throws exceptions\api_error HTTP error from TVDB api
      */
-	public function find_episode_by_name($series,$search)
+	public function find_episode_by_name($series,$search, $language=null)
 	{
-		if(!is_array($series))
-			$series=$this->findseries($series);
+	    if(empty($language))
+	        $language = $this->lang;
 
-		$episodes=$this->getepisodes($series['id']);
+		if(!is_array($series))
+			$series=$this->findseries($series, $language);
+
+		$episodes=$this->getepisodes($series['id'], $language);
 		$names=array_combine(array_keys($episodes),array_column($episodes,'episodeName'));
 		$names=array_filter($names); //Remove episodes without name
 		if(empty($names))

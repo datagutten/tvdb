@@ -19,7 +19,8 @@
     },
     "autoload": {
         "psr-4": {
-            "datagutten\\tvdb\\": "src"
+            "datagutten\\tvdb\\": "src",
+            "datagutten\\tvdb\\tests\\": "tests"
         }
     }
 }

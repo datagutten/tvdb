@@ -2,3 +2,8 @@ cache
 config_tvdb.php
 
 /vendor/
+coverage_html
+clover.xml
+/.phpunit.result.cache
+/composer.lock
+/.idea/

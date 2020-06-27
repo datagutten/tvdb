@@ -336,14 +336,4 @@ class tvdb
 
 		return $episodename;
 	}
-
-    /**
-     * @param array $episode Episode info
-     * @return string Formatted episode name
-     * @deprecated Use episode_name
-     */
-	public function episodename($episode)
-    {
-        return self::episode_name($episode);
-    }
 }

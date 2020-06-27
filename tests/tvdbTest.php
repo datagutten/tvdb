@@ -6,6 +6,7 @@ namespace datagutten\tvdb\tests;
 use datagutten\tvdb\exceptions\api_error;
 use datagutten\tvdb\tvdb;
 use PHPUnit\Framework\TestCase;
+use Requests;
 
 class tvdbTest extends TestCase
 {

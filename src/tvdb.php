@@ -70,6 +70,7 @@ class tvdb
      * @param string $language Language
      * @return array Response from TVDB as decoded json
      * @throws exceptions\api_error HTTP error from TVDB api
+     * @throws exceptions\noResultException No result for query
      */
 	public function request($uri,$language=null)
 	{
@@ -77,12 +78,13 @@ class tvdb
 			$language=$this->lang;
 		$this->headers['Accept-Language'] = $language;
 		$response = Requests::get('https://api.thetvdb.com'.$uri, $this->headers);
+        $data = json_decode($response->body,true);
 		if($response->status_code === 404)
-		    return null;
+            throw new exceptions\noResultException($data['Error']);
 		if(!$response->success)
             throw new exceptions\api_error($response);
 
-        return json_decode($response->body,true);
+        return $data;
 	}
 
     /**
@@ -91,6 +93,7 @@ class tvdb
      * @param string $language
      * @return array Series info
      * @throws exceptions\api_error HTTP error from TVDB api
+     * @throws exceptions\noResultException No result for query
      */
 	public function getseries($series_id,$language=null)
 	{
@@ -106,6 +109,7 @@ class tvdb
      * @param string $language Language
      * @return array Episode info
      * @throws exceptions\api_error HTTP error from TVDB api
+     * @throws exceptions\noResultException No result for query
      */
 	public function getepisodes($series_id,$language=null)
 	{
@@ -139,6 +143,7 @@ class tvdb
      * @param string $language
      * @return array Series info
      * @throws exceptions\api_error HTTP error from TVDB api
+     * @throws exceptions\noResultException No result for query
      */
 	public function series_search($search,$language=null)
 	{
@@ -188,6 +193,7 @@ class tvdb
      * @param string $language Language
      * @return array Series info
      * @throws exceptions\api_error HTTP error from TVDB api
+     * @throws exceptions\noResultException No result for query
      */
 	public function findseries($search,$language=null)
 	{
@@ -208,6 +214,7 @@ class tvdb
      * @param string $language Language
      * @return array
      * @throws exceptions\api_error HTTP error from TVDB api
+     * @throws exceptions\noResultException No result for query
      */
 	public function get_series_and_episodes($series_id, $language=null)
 	{
@@ -224,6 +231,7 @@ class tvdb
      * @param string $language Language
      * @return array Episode info
      * @throws exceptions\api_error HTTP error from TVDB api
+     * @throws exceptions\noResultException No result for query
      */
 	public function episode_info($series_id,$season,$episode,$language='')
 	{
@@ -241,6 +249,7 @@ class tvdb
      * @param $series
      * @return string|null
      * @throws exceptions\api_error HTTP error from TVDB api
+     * @throws exceptions\noResultException No result for query
      */
 	public function banner($series)
 	{
@@ -272,6 +281,7 @@ class tvdb
      * @return array|bool
      * @throws exceptions\api_error HTTP error from TVDB api
      * @throws exceptions\tvdbException
+     * @throws exceptions\noResultException No result for query
      */
 	public function find_episode_by_name($series,$search, $language=null)
 	{

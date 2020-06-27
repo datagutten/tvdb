@@ -4,6 +4,7 @@
 namespace datagutten\tvdb\tests;
 
 use datagutten\tvdb\exceptions\api_error;
+use datagutten\tvdb\exceptions\noResultException;
 use datagutten\tvdb\tvdb;
 use PHPUnit\Framework\TestCase;
 use Requests;
@@ -140,6 +141,14 @@ class tvdbTest extends TestCase
 
         $response = Requests::head($banner_url);
         $this->assertSame(200,$response->status_code);
+    }
+
+    public function testEpisode_infoNoHits()
+    {
+        $tvdb = new tvdb();
+        $this->expectException(noResultException::class);
+        $this->expectExceptionMessage('No results for your query: map[AiredSeason:5 EpisodeNumber:56]');
+        $tvdb->episode_info(81848, 5, 56);
     }
 
     public function testEpisode_info()

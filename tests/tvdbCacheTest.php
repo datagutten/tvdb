@@ -27,7 +27,7 @@ class tvdbCacheTest extends TestCase
 		$series = $this->tvdb->series_search('Ice Road Rescue', 'en');
 		$this->assertNotEmpty($series);
 		$this->assertSame('Ice Road Rescue', $series['seriesName']);
-		$this->assertFileExists(__DIR__.'/test_data/cache/series_search/Ice Road Rescue_en.json');
+		$this->assertFileExists(__DIR__.'/test_data/tvdb_cache/series_search/Ice Road Rescue_en.json');
 	}
 
 	public function testEpisode_info()

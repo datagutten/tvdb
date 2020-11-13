@@ -25,6 +25,14 @@ class tvdb_cache extends tvdb
 			$this->filesystem->mkdir($this->cache_dir.'/series_search');
 
 	}
+
+    /**
+     * Execute a method with caching
+     * @param string $cache_file Basename of the the cache json file
+     * @param callable $method Method to be called
+     * @param array $args Arguments to the method
+     * @return mixed
+     */
 	function cache($cache_file, $method, $args)
 	{
         $method_name = substr($method, strpos($method, ':')+2);
@@ -45,6 +53,13 @@ class tvdb_cache extends tvdb
 		}
 	}
 
+    /**
+     * Search for a series
+     * @param string $search Search string
+     * @param string $language
+     * @return array Series info
+     * @throws exceptions\api_error HTTP error from TVDB api
+     */
 	function series_search($search, $language=null)
 	{
 		$cache_file = sprintf('%s_%s.json', $search, $language);

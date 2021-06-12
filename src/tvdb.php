@@ -279,16 +279,15 @@ class tvdb
 
     /**
      * Find episode by name
-     * @param $series
-     * @param $search
-     * @param string $language Search language
-     * @return array|bool
+     * @param string $series Series name
+     * @param string $search Episode name
+     * @param null $language Search language
+     * @return array Episode information
      * @throws exceptions\api_error HTTP error from TVDB api
-     * @throws exceptions\tvdbException
      * @throws exceptions\noResultException No result for query
      */
-	public function find_episode_by_name($series,$search, $language=null)
-	{
+    public function find_episode_by_name(string $series, string $search, $language = null): array
+    {
 	    if(empty($language))
 	        $language = $this->lang;
 
@@ -299,7 +298,7 @@ class tvdb
 		$names=array_combine(array_keys($episodes),array_column($episodes,'episodeName'));
 		$names=array_filter($names); //Remove episodes without name
 		if(empty($names))
-			throw new tvdbException(sprintf('No episodes have names in language: %s',$language));
+			throw new exceptions\noResultException(sprintf('No episodes have names in language: %s',$language));
 
 		foreach ($names as $episode=>$name)
 		{
@@ -312,7 +311,7 @@ class tvdb
 			}
 		}
 		//If loop has completed without returning there is no match
-        throw new tvdbException(sprintf('Unable to find episode with name "%s" in language "%s"', $search, $language));
+        throw new exceptions\noResultException(sprintf('Unable to find episode with name "%s" in language "%s"', $search, $language));
 	}
 
     /**

@@ -261,10 +261,9 @@ class tvdb
 			$series=$this->findseries($series);
 		else
         {
-            if(empty($series['banner']))
-                return null;
-            if (strpos($series['banner'], 'poster')!==false)
+            if (empty($series['banner']) || strpos($series['banner'], 'poster')!==false)
             {
+                //TODO: HEAD request to check if URL is valid
                 return sprintf('http://thetvdb.com/banners/graphical/%d-g.jpg', $series['id']);
             }
         }

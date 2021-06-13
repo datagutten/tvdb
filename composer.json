@@ -23,5 +23,8 @@
             "datagutten\\tvdb\\": "src",
             "datagutten\\tvdb\\tests\\": "tests"
         }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
     }
 }

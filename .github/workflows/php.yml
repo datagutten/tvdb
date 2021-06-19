@@ -28,13 +28,18 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-php-
 
+    - name: Setup PHP with Xdebug
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        coverage: xdebug
+        extensions: curl
+
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
+      uses: php-actions/composer@v6
 
     - name: Run test suite
       run: composer run-script test
-      with:
-        php_version: ${{ matrix.php }}
       env:
         API_KEY: ${{ secrets.API_KEY }}
         USERNAME: ${{ secrets.USERNAME }}

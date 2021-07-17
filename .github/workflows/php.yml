@@ -36,9 +36,7 @@ jobs:
         extensions: curl
 
     - name: Install dependencies
-      uses: php-actions/composer@v6
-      with:
-        php_version: ${{ matrix.php }}
+      run: composer install --prefer-dist --no-progress
 
     - name: Run test suite
       run: composer run-script test

@@ -42,11 +42,6 @@ class tvdbTest extends TestCase
         $this->assertSame('Ice Road Rescue', $series['seriesName']);
     }
 
-    public function testGetseries()
-    {
-
-    }*/
-
     public function testInvalidLogin()
     {
         $this->expectException(api_error::class);

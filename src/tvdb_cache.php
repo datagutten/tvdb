@@ -72,8 +72,8 @@ class tvdb_cache extends tvdb
 		return $this->cache($cache_file, 'parent::episode_info', [$series_id, $season, $episode, $language]);
 	}
 
-    function getseries($series_id, $language = null)
+    public function series(int $series_id, string $language = ''): array
     {
-        return $this->cache($series_id, 'parent::getseries', [$series_id, $language]);
+        return $this->cache($series_id, 'parent::series', [$series_id, $language]);
     }
 }

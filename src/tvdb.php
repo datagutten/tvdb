@@ -76,7 +76,7 @@ class tvdb
      * @throws exceptions\api_error HTTP error from TVDB api
      * @throws exceptions\noResultException No result for query
      */
-	public function request(string $uri, string $language=''): array
+    public function request(string $uri, string $language = ''): array
     {
 		if(empty($language)) //Default to preferred language
 			$language=$this->lang;
@@ -110,7 +110,7 @@ class tvdb
      * @throws exceptions\noResultException No result for query
      * @deprecated Use series()
      */
-	public function getseries($series_id,$language=null): array
+    public function getseries(int $series_id, string $language = ''): array
     {
 		return $this->series($series_id, $language);
 	}
@@ -123,7 +123,7 @@ class tvdb
      * @throws exceptions\api_error HTTP error from TVDB api
      * @throws exceptions\noResultException No result for query
      */
-	public function getepisodes($series_id,$language=null)
+    public function getepisodes(int $series_id, string $language = '')
 	{
 		if(empty($series_id))
 			throw new InvalidArgumentException('Series ID is empty');
@@ -207,7 +207,7 @@ class tvdb
      * @throws exceptions\api_error HTTP error from TVDB api
      * @throws exceptions\noResultException No result for query
      */
-	public function findseries($search,$language=null)
+    public function findseries(string $search, string $language = '')
 	{
 		if(is_numeric($search))
 			return $this->getseries($search,$language);

@@ -33,6 +33,13 @@ class tvdbTest extends TestCase
     /*public function testEpisode_link()
     {
 
+    }*/
+
+    public function test_series()
+    {
+        $tvdb = new tvdb();
+        $series = $tvdb->series(299304);
+        $this->assertSame('Ice Road Rescue', $series['seriesName']);
     }
 
     public function testGetseries()

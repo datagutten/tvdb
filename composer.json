@@ -14,7 +14,7 @@
     ],
     "require": {
       "ext-json": "*",
-      "rmccue/requests": "^1.7|dev-multipart-form-data@dev",
+      "rmccue/requests": "^1.7|dev-multipart-form-data@dev|^2.0",
       "symfony/filesystem": "^4|^5",
       "php": ">=7.1"
     },

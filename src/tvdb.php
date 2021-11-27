@@ -11,7 +11,7 @@ class tvdb
 {
 	public $lang;
 	public $debug=false; //Set to true to show debug info
-	private $headers=array();
+	private $headers=['accept'=>'application/json'];
 	public $last_search_language=false; //Language for the last search
     protected $config;
 

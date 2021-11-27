@@ -76,8 +76,8 @@ class tvdb
      * @throws exceptions\api_error HTTP error from TVDB api
      * @throws exceptions\noResultException No result for query
      */
-	public function request($uri,$language=null)
-	{
+	public function request(string $uri, string $language=''): array
+    {
 		if(empty($language)) //Default to preferred language
 			$language=$this->lang;
 		$this->headers['Accept-Language'] = $language;

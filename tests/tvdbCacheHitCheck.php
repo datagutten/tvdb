@@ -3,11 +3,12 @@
 
 namespace datagutten\tvdb\tests;
 
+use datagutten\tvdb\tvdb_cache;
 use Exception;
 
-class tvdbCacheHitCheck extends \datagutten\tvdb\tvdb_cache
+class tvdbCacheHitCheck extends tvdb_cache
 {
-    function request($uri, $language = null)
+    public function request(string $uri, string $language = ''): array
     {
         throw new Exception('Cache not hit');
     }

@@ -99,12 +99,20 @@ class tvdb
      * @throws exceptions\api_error HTTP error from TVDB api
      * @throws exceptions\noResultException No result for query
      */
-	public function getseries($series_id,$language=null)
-	{
-		if(!is_numeric($series_id))
-			throw new InvalidArgumentException('Series ID must be numeric');
-		$response=$this->request('/series/'.$series_id,$language);
-        return $response['data'];
+	public function series(int $series_id, string $language = ''): array
+    {
+		return $this->request('/series/'.$series_id, $language)['data'];
+	}
+
+    /**
+     * Get a series by id
+     * @throws exceptions\api_error HTTP error from TVDB api
+     * @throws exceptions\noResultException No result for query
+     * @deprecated Use series()
+     */
+	public function getseries($series_id,$language=null): array
+    {
+		return $this->series($series_id, $language);
 	}
 
     /**

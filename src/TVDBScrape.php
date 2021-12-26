@@ -7,6 +7,7 @@ use datagutten\tvdb\exceptions\tvdbException;
 use DateTimeImmutable;
 use DOMDocument;
 use DOMElement;
+use DOMNode;
 use DOMXPath;
 use WpOrg\Requests;
 
@@ -160,5 +161,60 @@ class TVDBScrape
         }
 
         return $banner_urls;
+    }
+
+    /**
+     * Get overview languages
+     * @param DOMXPath $xpath
+     * @return array
+     */
+    public static function languages(DOMXPath $xpath): array
+    {
+        $languages_dom = $xpath->query("//div[@id='translations']/div/@data-language");
+        $languages = [];
+        foreach ($languages_dom as $language)
+        {
+            $languages[] = $language->nodeValue;
+        }
+        return $languages;
+    }
+
+    public function episode(string $episode_href, $languages = []): ?DOMNode
+    {
+        $xpath = $this->get_xpath($episode_href);
+        //$languages = self::languages($xpath);
+        if ($languages)
+        {
+            foreach ($languages as $language)
+            {
+                $translation = $xpath->query(sprintf("//div[@id='translations']/div[@data-language=\"%s\"]", $language));
+                if ($translation->length > 0)
+                    break;
+            }
+        }
+        else //Use first language
+            $translation = $xpath->query("//div[@id='translations']/div");
+
+        if (empty($translation))
+            return null;
+        return $translation->item(0);
+    }
+
+    function overview(string $episode_href, $languages = []): ?string
+    {
+        $translation = $this->episode($episode_href, $languages);
+        if (empty($translation))
+            return null;
+        return $translation->firstChild->textContent;
+    }
+
+    function translation(string $episode_href, $languages = []): array
+    {
+        $translation = $this->episode($episode_href, $languages);
+        if (empty($translation))
+            return [null, null];
+        $title = $translation->attributes->getNamedItem('data-title')->textContent;
+        $overview = $translation->childNodes->item(1)->textContent;
+        return [$title, $overview];
     }
 }

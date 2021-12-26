@@ -1,0 +1,56 @@
+name: PHP Composer
+
+on:
+  push:
+    branches: [ scrape ]
+  pull_request:
+    branches: [ scrape ]
+
+jobs:
+  version:
+    name: 'PHP version test'
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [ '7.4', '8.0', '8.1' ]
+        os: [ ubuntu-latest, windows-latest ]
+        dependencies: [ lowest, highest, locked ]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php${{ matrix.php }}-${{ matrix.dependencies }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php${{ matrix.php }}-${{ matrix.dependencies }}-
+
+      - name: Setup PHP with Xdebug
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: xdebug
+          extensions: curl, libxml
+
+      - name: Install locked dependencies with composer
+        if: matrix.dependencies == 'locked'
+        run: composer install --prefer-dist --no-progress
+
+      - name: Install lowest dependencies with composer
+        if: matrix.dependencies == 'lowest'
+        run: composer update --no-ansi --no-interaction --no-progress --prefer-lowest
+
+      - name: Install highest dependencies with composer
+        if: matrix.dependencies == 'highest'
+        run: composer update --no-ansi --no-interaction --no-progress
+
+      - name: Run tests
+        run: vendor/bin/phpunit
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1

@@ -1,0 +1,5 @@
+/vendor/
+/coverage_html/
+/clover.xml
+.idea
+/.phpunit.result.cache

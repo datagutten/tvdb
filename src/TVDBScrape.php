@@ -110,9 +110,14 @@ class TVDBScrape
      * @return Episode[]
      * @throws TVDBException
      */
-    public function episodes(string $slug, string $ordering = 'official', bool $id_key = false): array
+    public function episodes(string $slug, string $ordering = 'official', bool $id_key = false, int $season=null): array
     {
-        $xpath = $this->get_xpath(sprintf('/series/%s/allseasons/%s', $slug, $ordering));
+        if(!empty($season))
+            $url = sprintf('/series/%s/seasons/%s/%d', $slug, $ordering, $season);
+        else
+            $url = sprintf('/series/%s/allseasons/%s', $slug, $ordering);
+
+        $xpath = $this->get_xpath($url);
         $series = self::series_title($xpath);
         $episodes_xpath = $xpath->query('//li[@class="list-group-item"]');
         $episodes = [];

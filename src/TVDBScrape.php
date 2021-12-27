@@ -140,7 +140,10 @@ class TVDBScrape
             $episode_obj->description = trim($overview->textContent);
 
             $aired = $xpath->query('ul[@class="list-inline text-muted"]/li', $episode)->item(0);
-            $episode_obj->date = DateTimeImmutable::createFromFormat('M d, Y', $aired->textContent);
+            $aired_parsed = DateTimeImmutable::createFromFormat('M d, Y', $aired->textContent);
+            if ($aired_parsed !== false)
+                $episode_obj->date = $aired_parsed;
+
             if (!$id_key)
                 $episodes[] = $episode_obj;
             else

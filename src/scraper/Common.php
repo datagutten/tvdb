@@ -28,7 +28,17 @@ class Common
     public static function default_language(DOMXPath $xpath): string
     {
         $language = $xpath->query('//span[@class="label label-info change_translation"]/@data-language');
-        return $language->item(0)->nodeValue;
+        if($language->length == 0)
+        {
+            $title = $xpath->query('//h1')->item(0)->textContent;
+            $title = trim($title);
+            $language = $xpath->query($q=sprintf('//div[@data-title="%s"]/@data-language', $title));
+        }
+
+        if($language->length == 1)
+            return $language->item(0)->nodeValue;
+        else
+            throw new exceptions\TVDBException('Unable to find default language');
     }
 
     /**

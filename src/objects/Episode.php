@@ -68,8 +68,18 @@ class Episode extends EpisodeFormat
     public function scrape(): static
     {
         $xpath = $this->tvdb->get_xpath($this->url());
+        if (empty($this->season_obj->ordering))
+        {
+            try {
+                list($this->season, $this->episode) = $this->scraper->episode('official');
+            }
+            catch (exceptions\EpisodeNotFound $e)
+            {
+            }
+        }
+        else
+            list($this->season, $this->episode) = $this->scraper->episode($this->season_obj->ordering);
 
-        list($this->season, $this->episode) = $this->scraper->episode($this->season_obj->ordering ?? 'official');
         $info = $this->scraper->info();
         if (!empty($info['date']))
             $this->date = $info['date'];

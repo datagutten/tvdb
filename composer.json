@@ -16,7 +16,7 @@
         "php": "^8.0",
         "ext-dom": "*",
         "ext-json": "*",
-        "datagutten/video-tools": "dev-master",
+        "datagutten/video-tools": "^2.5|dev-master",
         "rmccue/requests": "^2.0",
         "symfony/filesystem": "^4|^5"
     },

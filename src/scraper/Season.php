@@ -49,12 +49,20 @@ class Season
 
             preg_match('/S([0-9]+)E([0-9]+)/', $episode_num, $matches);
             $id = preg_replace('#.+episodes/([0-9]+)#', '$1', $link->getAttribute('href'));
+            try
+            {
+                $aired_obj = new DateTimeImmutable(strval($aired));
+            }
+            catch (Exception)
+            {
+                $aired_obj = null;
+            }
             $episodes[] = [
                 'season' => intval($matches[1]),
                 'episode' => intval($matches[2]),
                 'title' => trim($link->textContent),
                 'id' => intval($id),
-                'aired' => new DateTimeImmutable($aired),
+                'aired' => $aired_obj,
             ];
         }
         return $episodes;

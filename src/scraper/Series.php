@@ -76,7 +76,9 @@ class Series
         $orders = [];
         foreach ($orders_dom as $order) {
             //$key = $order->getAttribute('data-type');
-            $key = preg_replace('/.tab-(.+)/', '$1', $order->getAttribute('href'));
+            $key = preg_replace('/#seasons-(.+)/', '$1', $order->getAttribute('href'), count: $count);
+            if ($count == 0)
+                continue;
             $orders[$key] = $order->textContent;
         }
         return $orders;

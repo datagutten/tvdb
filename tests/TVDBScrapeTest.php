@@ -22,6 +22,7 @@ class TVDBScrapeTest extends TestCase
         $series = $this->tvdb->series('miraculous-ladybug', lang:'eng');
         $this->assertInstanceOf(Series::class, $series);
         //$this->assertEquals('S03E17', $series[377012]);
+        $this->assertContains('Aired Order', $series->orders);
     }
 
     public function testSeason()

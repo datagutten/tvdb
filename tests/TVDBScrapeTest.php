@@ -39,6 +39,13 @@ class TVDBScrapeTest extends TestCase
         $this->assertEquals('S03E17', $season[377012]);
     }
 
+    public function testSeries3()
+    {
+        $season = $this->tvdb->season_simple('border-security',3, ordering: 'dvd');
+        $this->assertArrayHasKey(377012, $season);
+        $this->assertEquals('S03E17', $season[377012]);
+    }
+
     public function testProductionCode()
     {
         $series = $this->tvdb->series('looney-tunes-cartoons');
@@ -60,6 +67,13 @@ class TVDBScrapeTest extends TestCase
         $series = $this->tvdb->series('miraculous-ladybug');
         $languages = $series->languages();
         $this->assertArrayHasKey('dan', $languages);
+    }
+
+    public function testTranslation()
+    {
+        $series = $this->tvdb->series('miraculous-ladybug', 'dan');
+        $episode = $series->episode(5379014);
+        $this->assertEquals('Stormvejr på vej', $episode->title);
     }
 
     public function testNoTranslation()

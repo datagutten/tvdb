@@ -29,13 +29,11 @@ class Episode extends Common
     public function info()
     {
         $episode_info = [];
-        $blocks = $this->xpath->query('//div[@class="block"]');
-        $info = $blocks->item(1);
         $fields = [
             'production_code' => 'Production Code',
             'runtime_string' => 'Runtime',
         ];
-        foreach ($this->xpath->query('ul/li', $info) as $item)
+        foreach ($this->xpath->query('//ul[@class="list-group"]/li') as $item)
         {
             $title = $item->getElementsByTagName('strong')->item(0)->textContent;
 

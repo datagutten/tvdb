@@ -25,7 +25,7 @@ class EpisodeTest extends TestCase
         $tvdb = new TVDBScrape();
         $series = $tvdb->series('phineas-and-ferb');
         $episode = $series->episode(4209871);
-        $this->assertEquals(new DateInterval('PT12M'), $episode->duration);
+        $this->assertEquals(new DateInterval('PT25M'), $episode->duration);
         $this->assertEquals(new DateTimeImmutable('2011-12-02 0:00:00'), $episode->date);
         $this->assertEquals('A Phineas and Ferb Family Christmas', $episode->title);
         $this->assertEquals('317a', $episode->production_code);

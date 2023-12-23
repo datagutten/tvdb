@@ -37,8 +37,16 @@ class Common
 
         if($language->length == 1)
             return $language->item(0)->nodeValue;
-        else
-            throw new exceptions\TVDBException('Unable to find default language');
+        elseif ($language->length > 1)
+        {
+            foreach ($language as $item)
+            {
+                $style = $item->ownerElement->getAttribute('style');
+                if ($style != 'display:none') //Default language is not hidden
+                    return $item->nodeValue;
+            }
+        }
+        throw new exceptions\TVDBException('Unable to find default language');
     }
 
     /**

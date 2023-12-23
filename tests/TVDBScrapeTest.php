@@ -78,8 +78,8 @@ class TVDBScrapeTest extends TestCase
 
     public function testNoTranslation()
     {
-        $series = $this->tvdb->series('phineas-and-ferb', 'nor');
+        $series = $this->tvdb->series('phineas-and-ferb', 'swe');
         $episode = $series->episode(363248);
-        $this->assertTrue(empty($episode->title));
+        $this->assertEmpty($episode->title);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace datagutten\tvdb_tests;
 
+use datagutten\tvdb\exceptions;
 use datagutten\tvdb\objects;
 use datagutten\tvdb\objects\Series;
 use datagutten\tvdb\TVDBScrape;
@@ -23,6 +24,13 @@ class TVDBScrapeTest extends TestCase
         $this->assertInstanceOf(Series::class, $series);
         //$this->assertEquals('S03E17', $series[377012]);
         $this->assertContains('Aired Order', $series->orders);
+    }
+
+    public function testInvalidSlug()
+    {
+        $this->expectExceptionMessageMatches('#No series found.+#');
+        $this->expectException(exceptions\TVDBException::class);
+        $this->tvdb->series('looney-tunes-show');
     }
 
     public function testSeason()

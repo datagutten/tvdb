@@ -28,7 +28,17 @@ class TVDBScrape
      */
     public function series($slug, $lang = null): objects\Series
     {
-        return new objects\Series(slug: $slug, language: $lang, tvdb: $this);
+        try
+        {
+            return new objects\Series(slug: $slug, language: $lang, tvdb: $this);
+        }
+        catch (exceptions\HTTPError $e)
+        {
+            if ($e->getCode() == 404)
+                throw new exceptions\TVDBException(sprintf('No series found with slug "%s"', $slug), $e->getCode(), $e);
+            else
+                throw  $e;
+        }
     }
 
     /**
@@ -59,8 +69,10 @@ class TVDBScrape
         $response = $this->session->get($url);
         if (!$response->success)
         {
-            $exception = Requests\Exception\Http::get_class($response->status_code);
-            $exception2 = new exceptions\HTTPError('HTTP error', 0, new $exception(null, $response));
+            $exception_class = Requests\Exception\Http::get_class($response->status_code);
+            $exception = new $exception_class(null, $response);
+            $message = sprintf('HTTP error: %s for URL %s', $exception->getMessage(), $url);
+            $exception2 = new exceptions\HTTPError($message, $exception->getCode(), $exception);
             $exception2->response = $response;
             throw $exception2;
         }

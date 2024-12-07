@@ -43,7 +43,6 @@ class Series extends TVDBObject
             $this->scraper = $scraper;
         $data = array_merge($data, $this->scraper->scrape_data());
         parent::__construct($data);
-
     }
 
     public function __toString(): string

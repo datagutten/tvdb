@@ -30,16 +30,8 @@ class TVDBScrape
      */
     public function series($slug, $lang = null): objects\Series
     {
-        /*$xpath = $this->get_xpath('/series/' . $slug);
-        $scraper = new scraper\Series($xpath, $lang);*/
-        return new objects\Series(slug: $slug, language: $lang, tvdb: $this, /*scraper: $scraper*/);
+        return new objects\Series(slug: $slug, language: $lang, tvdb: $this);
     }
-
-    /*    public function episode_obj(string $series_slug, int $episode_id)
-        {
-            $uri = sprintf('/series/%s/episodes/%d', $series_slug, $episode_id);
-            $scraper = new scraper\EpisodeScraper::
-        }*/
 
     /**
      * Get a page and return a DOMXpath object for the page

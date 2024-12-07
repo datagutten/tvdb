@@ -53,9 +53,22 @@ class Episode extends EpisodeFormat
 
     }
 
+    /**
+     * Get episode URL
+     * @return string Episode URL
+     */
     public function url(): string
     {
         return sprintf('https://thetvdb.com/series/%s/episodes/%d', $this->series_obj->slug, $this->id);
+    }
+
+    /**
+     * Get URL for adding episode translation to current language
+     * @return string Translation URL
+     */
+    public function translation_url(): string
+    {
+        return sprintf('https://thetvdb.com/series/%s/episodes/%d/translate/%s/0/single', $this->series_obj->slug, $this->id, $this->series_obj->language);
     }
 
     public function get_scraper()
@@ -68,7 +81,7 @@ class Episode extends EpisodeFormat
      * @return $this Episode object
      * @throws exceptions\EpisodeNotFound Episode has no number in selected ordering
      * @throws exceptions\HTTPError HTTP error fetching episode page
- */
+     */
     public function scrape(): static
     {
         $xpath = $this->tvdb->get_xpath($this->url());

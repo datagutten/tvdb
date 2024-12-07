@@ -35,4 +35,12 @@ class EpisodeTest extends TestCase
         $this->assertEquals(3, $episode->season);
         $this->assertEquals(27, $episode->episode);
     }
+
+    public function testTranslatedTitle()
+    {
+        $tvdb = new TVDBScrape();
+        $series = $tvdb->series('hamster-and-gretel', 'nor');
+        $episode = $series->episode(9864389);
+        $this->assertEquals('Düm-rådet', $episode->title);
+    }
 }

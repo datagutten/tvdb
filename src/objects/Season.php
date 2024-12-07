@@ -59,6 +59,7 @@ class Season extends TVDBObject
 
     /**
      * @return objects\Episode[]
+     * @throws exceptions\HTTPError HTTP error fetching episode page
      */
     public function episodes($id_key = false): array
     {
@@ -66,8 +67,15 @@ class Season extends TVDBObject
         $episode_ids = $this->scraper->episode_ids();
         foreach ($episode_ids as $episode_id)
         {
-            $episode = new Episode(['id' => $episode_id], $this, $episode_id, $this->tvdb);
-            $episode->scrape();
+            try
+            {
+                $episode = new Episode(['id' => $episode_id], $this, $episode_id, $this->tvdb);
+                $episode->scrape();
+            }
+            catch (exceptions\EpisodeNotFound)
+            {
+                continue; // Skip non-existing episodes
+            }
             if (!$id_key)
                 $episodes[] = $episode;
             else

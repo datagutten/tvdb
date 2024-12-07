@@ -5,7 +5,6 @@ namespace datagutten\tvdb\objects;
 
 use datagutten\tvdb\exceptions;
 use datagutten\tvdb\scraper;
-use datagutten\tvdb\scraper\EpisodeScraper;
 use datagutten\tvdb\TVDBScrape;
 use datagutten\video_tools\EpisodeFormat;
 use DateInterval;
@@ -54,7 +53,7 @@ class Episode extends EpisodeFormat
 
     }
 
-    public function url()
+    public function url(): string
     {
         return sprintf('https://thetvdb.com/series/%s/episodes/%d', $this->series_obj->slug, $this->id);
     }
@@ -65,6 +64,11 @@ class Episode extends EpisodeFormat
         $this->scraper = new scraper\Episode($xpath);
     }
 
+    /**
+     * @return $this Episode object
+     * @throws exceptions\EpisodeNotFound Episode has no number in selected ordering
+     * @throws exceptions\HTTPError HTTP error fetching episode page
+ */
     public function scrape(): static
     {
         $xpath = $this->tvdb->get_xpath($this->url());

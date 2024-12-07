@@ -2,10 +2,10 @@
 
 namespace datagutten\tvdb\scraper;
 
+use datagutten\tvdb\exceptions;
+use datagutten\tvdb\objects;
 use DOMXPath;
 use Exception;
-use datagutten\tvdb\objects;
-use datagutten\tvdb\exceptions;
 
 
 /**
@@ -78,7 +78,7 @@ class Episode extends Common
      * Get season and episode number
      * @param string $ordering
      * @return int[]
-     * @throws exceptions\EpisodeNotFound
+     * @throws exceptions\EpisodeNotFound Episode has no number in selected ordering
      */
     public function episode(string $ordering): array
     {

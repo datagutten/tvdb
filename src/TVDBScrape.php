@@ -2,8 +2,6 @@
 
 namespace datagutten\tvdb;
 
-use datagutten\tvdb\exceptions\HTTPError;
-use datagutten\tvdb\exceptions\tvdbException;
 use DOMDocument;
 use DOMNode;
 use DOMXPath;
@@ -26,7 +24,7 @@ class TVDBScrape
      * @param $slug
      * @param null $lang
      * @return objects\Series
-     * @throws tvdbException
+     * @throws exceptions\TVDBException
      */
     public function series($slug, $lang = null): objects\Series
     {
@@ -37,7 +35,7 @@ class TVDBScrape
      * Get a page and return a DOMXpath object for the page
      * @param string $url Page URL
      * @return DOMXPath
-     * @throws TVDBException
+     * @throws exceptions\HTTPError HTTP error fetching page
      */
     public function get_xpath(string $url): DOMXPath
     {
@@ -51,7 +49,7 @@ class TVDBScrape
      * HTTP GET request
      * @param string $url URL to GET
      * @return string Response body
-     * @throws HTTPError HTTP error
+     * @throws exceptions\HTTPError HTTP error
      */
     public function get(string $url): string
     {
@@ -62,7 +60,7 @@ class TVDBScrape
         if (!$response->success)
         {
             $exception = Requests\Exception\Http::get_class($response->status_code);
-            $exception2 = new HTTPError('HTTP error', 0, new $exception(null, $response));
+            $exception2 = new exceptions\HTTPError('HTTP error', 0, new $exception(null, $response));
             $exception2->response = $response;
             throw $exception2;
         }
@@ -73,7 +71,7 @@ class TVDBScrape
      * Get episode orders
      * @param string $slug Series slug
      * @return array Orders
-     * @throws TVDBException
+     * @throws exceptions\TVDBException
      * @deprecated Use series object method
      */
     public function orders(string $slug): array
@@ -99,7 +97,7 @@ class TVDBScrape
      * @param int $season Season number
      * @param string $ordering Episode ordering
      * @return array Simple array with episode id as key and episode name as value
-     * @throws HTTPError
+     * @throws exceptions\HTTPError HTTP error fetching season page
      */
     public function season_simple(string $slug, int $season, string $ordering = 'official'): array
     {
@@ -114,7 +112,7 @@ class TVDBScrape
      * @param string $ordering Episode ordering
      * @param bool $id_key Use episode id as key in returned array
      * @return objects\Episode[]
-     * @throws TVDBException
+     * @throws exceptions\TVDBException
      */
     public function episodes(string $slug, string $ordering = 'official', bool $id_key = false, int $season = null): array
     {
@@ -129,7 +127,7 @@ class TVDBScrape
      * @param string $episode_href
      * @param array $languages
      * @return DOMNode|null
-     * @throws tvdbException
+     * @throws exceptions\TVDBException
      * @deprecated
      */
     public function episode(string $episode_href, $languages = []): ?DOMNode

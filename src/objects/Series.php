@@ -3,9 +3,9 @@
 namespace datagutten\tvdb\objects;
 
 use datagutten\tvdb\exceptions;
-use datagutten\tvdb\TVDBScrape;
-use datagutten\tvdb\scraper;
 use datagutten\tvdb\objects;
+use datagutten\tvdb\scraper;
+use datagutten\tvdb\TVDBScrape;
 use InvalidArgumentException;
 
 class Series extends TVDBObject
@@ -27,7 +27,12 @@ class Series extends TVDBObject
     protected TVDBScrape $tvdb;
 
     /**
-     * @throws exceptions\tvdbException
+     * @param array $data Series data
+     * @param ?string $slug Series slug
+     * @param ?string $language Series language
+     * @param ?TVDBScrape $tvdb TVDBScrape object
+     * @param ?scraper\Series $scraper Series scraper object
+     * @throws exceptions\HTTPError HTTP error fetching series page
      */
     public function __construct(array $data = [], string $slug = null, string $language = null, TVDBScrape $tvdb = null, scraper\Series $scraper = null)
     {

@@ -4,9 +4,10 @@
 namespace datagutten\tvdb\objects;
 
 
-use datagutten\tvdb\TVDBScrape;
-use datagutten\tvdb\scraper;
+use datagutten\tvdb\exceptions;
 use datagutten\tvdb\objects;
+use datagutten\tvdb\scraper;
+use datagutten\tvdb\TVDBScrape;
 
 class Season extends TVDBObject
 {
@@ -30,6 +31,12 @@ class Season extends TVDBObject
     protected scraper\Season $scraper;
     protected TVDBScrape $tvdb;
 
+    /**
+     * @param $data
+     * @param Series $series
+     * @param TVDBScrape|null $tvdb
+     * @throws exceptions\HTTPError HTTP error fetching season page
+     */
     public function __construct($data, Series $series, TVDBScrape $tvdb = null)
     {
         parent::__construct($data);

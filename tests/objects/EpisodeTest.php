@@ -1,4 +1,6 @@
 <?php
+/** @noinspection PhpUnhandledExceptionInspection */
+
 namespace datagutten\tvdb_tests\objects;
 
 require __DIR__.'/../../vendor/autoload.php';

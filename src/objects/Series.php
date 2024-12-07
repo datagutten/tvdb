@@ -16,12 +16,22 @@ class Series extends TVDBObject
     public string $title;
     public string $slug;
     public string $id;
+
     /**
-     * @var string[]
+     * @var string[] Series episode orders
      */
     public array $orders;
     public ?string $language = null;
 
+    /**
+     * @var string Series overview
+     */
+    public string $overview;
+
+    /**
+     * @var string[] Series banner image URLs
+     */
+    public array $banners;
 
     protected scraper\Series $scraper;
     protected TVDBScrape $tvdb;

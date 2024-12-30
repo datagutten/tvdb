@@ -71,7 +71,13 @@ class Episode extends EpisodeFormat
         return sprintf('https://thetvdb.com/series/%s/episodes/%d/translate/%s/0/single', $this->series_obj->slug, $this->id, $this->series_obj->language);
     }
 
-    public function get_scraper()
+    /**
+     * Initialize scraper object
+     * @return void
+     * @throws exceptions\HTTPError
+     * @throws exceptions\TVDBException
+     */
+    public function get_scraper(): void
     {
         $xpath = $this->tvdb->get_xpath($this->url());
         $this->scraper = new scraper\Episode($xpath);

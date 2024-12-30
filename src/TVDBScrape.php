@@ -21,12 +21,13 @@ class TVDBScrape
     }
 
     /**
-     * @param $slug
-     * @param null $lang
-     * @return objects\Series
+     * @param string $slug Series slug
+     * @param string|null $lang Series language code
+     * @return objects\Series Series object
+     * @throws exceptions\HTTPError
      * @throws exceptions\TVDBException
      */
-    public function series($slug, $lang = null): objects\Series
+    public function series(string $slug, ?string $lang = null): objects\Series
     {
         try
         {
@@ -126,7 +127,7 @@ class TVDBScrape
      * @return objects\Episode[]
      * @throws exceptions\TVDBException
      */
-    public function episodes(string $slug, string $ordering = 'official', bool $id_key = false, int $season = null): array
+    public function episodes(string $slug, string $ordering = 'official', bool $id_key = false, ?int $season = null): array
     {
         $series = $this->series($slug);
         if(empty($season))
@@ -137,12 +138,12 @@ class TVDBScrape
 
     /**
      * @param string $episode_href
-     * @param array $languages
+     * @param string[] $languages
      * @return DOMNode|null
      * @throws exceptions\TVDBException
      * @deprecated
      */
-    public function episode(string $episode_href, $languages = []): ?DOMNode
+    public function episode(string $episode_href, array $languages = []): ?DOMNode
     {
         $xpath = $this->get_xpath($episode_href);
         //$languages = self::languages($xpath);

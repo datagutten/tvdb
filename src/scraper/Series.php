@@ -24,7 +24,16 @@ class Series
     public function scrape_data(): array
     {
         if (empty($this->language))
-            $this->language = 'eng';
+        {
+            try
+            {
+                $this->language = Common::default_language($this->xpath);
+            }
+            catch (TVDBException)
+            {
+                $this->language = 'eng';
+            }
+        }
 
         list($title, $overview) = $this->translation($this->language);
         return [

@@ -90,4 +90,11 @@ class TVDBScrapeTest extends TestCase
         $episode = $series->episode(363248);
         $this->assertEmpty($episode->title);
     }
+
+    public function testNoEnglish()
+    {
+        $series = $this->tvdb->series('308231-show');
+        $this->assertEquals('nor', $series->language);
+        $this->assertEquals('Barneavdelingen', $series->title);
+    }
 }

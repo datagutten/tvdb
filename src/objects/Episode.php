@@ -31,7 +31,7 @@ class Episode extends EpisodeFormat
     protected scraper\Episode $scraper;
     protected TVDBScrape $tvdb;
 
-    public function __construct($data, Season $season = null, int $id = null, TVDBScrape $tvdb = null)
+    public function __construct($data, Season|null $season = null, TVDBScrape|null $tvdb = null)
     {
         foreach ($data as $key => $value)
         {

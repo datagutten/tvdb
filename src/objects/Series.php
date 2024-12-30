@@ -44,7 +44,7 @@ class Series extends TVDBObject
      * @param ?scraper\Series $scraper Series scraper object
      * @throws exceptions\HTTPError HTTP error fetching series page
      */
-    public function __construct(array $data = [], string $slug = null, string $language = null, TVDBScrape $tvdb = null, scraper\Series $scraper = null)
+    public function __construct(array $data = [], string|null $slug = null, string|null $language = null, TVDBScrape|null $tvdb = null, scraper\Series|null $scraper = null)
     {
         $this->slug = $slug;
         $this->language = $language;
@@ -108,7 +108,7 @@ class Series extends TVDBObject
 
     public function episode(int $id): objects\Episode
     {
-        $episode = new objects\Episode(['id' => $id, 'series_obj' => $this], id: $id, tvdb: $this->tvdb);
+        $episode = new objects\Episode(['id' => $id, 'series_obj' => $this], tvdb: $this->tvdb);
         return $episode->scrape();
     }
 

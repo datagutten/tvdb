@@ -69,7 +69,7 @@ class Season extends TVDBObject
         {
             try
             {
-                $episode = new Episode(['id' => $episode_id], $this, $episode_id, $this->tvdb);
+                $episode = new Episode(['id' => $episode_id], season: $this, tvdb: $this->tvdb);
                 $episode->scrape();
             }
             catch (exceptions\EpisodeNotFound)
@@ -83,8 +83,14 @@ class Season extends TVDBObject
         }
         return $episodes;
     }
-	
-	public function episode($num)
+
+    /**
+     * Get episode number
+     * @param int $num Episode
+     * @return Episode|void
+
+     */
+	public function episode(int $num)
 	{
 		$episodes = $this->scraper->episodes();
 		foreach($episodes as $episode)

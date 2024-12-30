@@ -37,7 +37,7 @@ class Season extends TVDBObject
      * @param TVDBScrape|null $tvdb
      * @throws exceptions\HTTPError HTTP error fetching season page
      */
-    public function __construct($data, Series $series, TVDBScrape $tvdb = null)
+    public function __construct($data, Series $series, ?TVDBScrape $tvdb = null)
     {
         parent::__construct($data);
         $this->series = $series;

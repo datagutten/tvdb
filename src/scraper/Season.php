@@ -31,7 +31,6 @@ class Season
     /**
      * Get episodes
      * @return array
-     * @throws Exception
      */
     public function episodes(): array
     {

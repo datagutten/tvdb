@@ -2,8 +2,7 @@
 
 namespace datagutten\tvdb\scraper;
 
-use datagutten\tvdb\exceptions\TVDBException;
-use datagutten\tvdb\objects;
+use datagutten\tvdb\exceptions;
 use DOMXPath;
 
 class Series
@@ -21,6 +20,10 @@ class Series
         $this->language = $language;
     }
 
+    /**
+     * @return array
+     * @throws exceptions\TranslationNotFound Translation for given language not found
+     */
     public function scrape_data(): array
     {
         if (empty($this->language))
@@ -29,7 +32,7 @@ class Series
             {
                 $this->language = Common::default_language($this->xpath);
             }
-            catch (TVDBException)
+            catch (exceptions\TVDBException)
             {
                 $this->language = 'eng';
             }
@@ -70,6 +73,12 @@ class Series
         return $banner_urls;
     }
 
+    /**
+     * Get series translation
+     * @param string $language Language code
+     * @return string[]|null[] Array containing title and overview translated to the given language
+     * @throws exceptions\TranslationNotFound Translation for given language not found
+     */
     function translation(string $language): array
     {
         return Common::translation($this->xpath, $language);

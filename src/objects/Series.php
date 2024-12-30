@@ -84,7 +84,9 @@ class Series extends TVDBObject
     }
 
     /**
+     * Get all episodes of the series
      * @return Episode[]
+     * @throws exceptions\HTTPError HTTP error fetching season page
      */
     public function all_episodes(string $ordering = 'official', $id_key = false): array
     {
@@ -99,6 +101,12 @@ class Series extends TVDBObject
 
     }
 
+    /**
+     * @param int $season
+     * @param string $ordering
+     * @return Season
+     * @throws exceptions\HTTPError HTTP error fetching season page
+     */
     public function season(int $season, string $ordering = 'official'): objects\Season
     {
         if (!in_array($ordering, array_keys($this->orders())))
@@ -106,19 +114,25 @@ class Series extends TVDBObject
         return new Season(['number' => $season, 'ordering' => $ordering], $this, $this->tvdb);
     }
 
+    /**
+     * @param int $id
+     * @return Episode
+     * @throws exceptions\EpisodeNotFound Episode has no number in selected ordering
+     * @throws exceptions\HTTPError HTTP error fetching episode page
+     */
     public function episode(int $id): objects\Episode
     {
         $episode = new objects\Episode(['id' => $id, 'series_obj' => $this], tvdb: $this->tvdb);
         return $episode->scrape();
     }
 
-    public function languages()
+    public function languages(): array
     {
         return $this->scraper->languages();
     }
 
-	public function banners()
-	{
+    public function banners(): array
+    {
 		return $this->scraper->banners();
 	}
 }

@@ -30,7 +30,7 @@ class TVDBScrape extends \datagutten\tvdb\TVDBScrape
         preg_match('#/((\w+)/([\w\-]+)/(\w+)/(\w+))#', $url, $matches2);
         if (!empty($matches) && $matches[3] == 'episodes')
             $file = $this->episode_file($matches[2], $matches[4]);
-        elseif (!empty($matches2) && in_array($matches2[2], ['series']))
+        elseif (!empty($matches2) && $matches2[2] == 'series')
             $file = $this->cache_file($matches2[1]);
         if (!empty($file))
         {
@@ -49,7 +49,7 @@ class TVDBScrape extends \datagutten\tvdb\TVDBScrape
             return parent::get_xpath($url);
     }
 
-    protected function cache_file($url)
+    protected function cache_file($url): string
     {
         if (DIRECTORY_SEPARATOR != '/')
             $url = str_replace('/', DIRECTORY_SEPARATOR, $url);

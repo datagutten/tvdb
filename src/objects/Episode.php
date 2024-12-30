@@ -31,6 +31,13 @@ class Episode extends EpisodeFormat
     protected scraper\Episode $scraper;
     protected TVDBScrape $tvdb;
 
+    /**
+     *
+     * @param $data
+     * @param Season|null $season
+     * @param TVDBScrape|null $tvdb
+     * @throws exceptions\HTTPError HTTP error fetching episode page
+     */
     public function __construct($data, Season|null $season = null, TVDBScrape|null $tvdb = null)
     {
         foreach ($data as $key => $value)
@@ -74,8 +81,7 @@ class Episode extends EpisodeFormat
     /**
      * Initialize scraper object
      * @return void
-     * @throws exceptions\HTTPError
-     * @throws exceptions\TVDBException
+     * @throws exceptions\HTTPError HTTP error fetching episode page
      */
     public function get_scraper(): void
     {

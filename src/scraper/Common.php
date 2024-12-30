@@ -57,7 +57,7 @@ class Common
 
     /**
      * Get series title from breadcrumbs
-     * @param $xpath
+     * @param DOMXPath $xpath
      * @return string
      */
     public static function title_crumbs(DOMXPath $xpath): string
@@ -66,6 +66,13 @@ class Common
         return trim($title->item(0)->textContent);
     }
 
+    /**
+     * Get translation
+     * @param DOMXPath $xpath DOMXpath object
+     * @param string $language Language code
+     * @return string[]|null[] Array containing title and overview translated to the given language
+     * @throws exceptions\TranslationNotFound Translation for given language not found
+     */
     public static function translation(DOMXPath $xpath, string $language): array
     {
         $translation = $xpath->query(sprintf("//div[@id='translations']/div[@data-language=\"%s\"]", $language));

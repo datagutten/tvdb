@@ -88,7 +88,8 @@ class Season extends TVDBObject
      * Get episode number
      * @param int $num Episode
      * @return Episode|void
-
+     * @throws exceptions\EpisodeNotFound Episode has no number in selected ordering
+     * @throws exceptions\HTTPError HTTP error fetching episode page
      */
 	public function episode(int $num)
 	{

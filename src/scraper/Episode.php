@@ -4,6 +4,8 @@ namespace datagutten\tvdb\scraper;
 
 use datagutten\tvdb\exceptions;
 use datagutten\tvdb\objects;
+use DateInterval;
+use DateTimeImmutable;
 use DOMXPath;
 use Exception;
 
@@ -20,13 +22,13 @@ class Episode extends Common
      */
     public ?string $language;
 
-    public function __construct(DOMXPath $xpath, $language = null)
+    public function __construct(DOMXPath $xpath, ?string $language = null)
     {
         $this->xpath = $xpath;
         $this->language = $language;
     }
 
-    public function info()
+    public function info(): array
     {
         $episode_info = [];
         $fields = [
@@ -42,7 +44,7 @@ class Episode extends Common
                 $href = $this->xpath->query('span/a/@href', $item)->item(0);
                 if (!empty($href) && preg_match('#/on-today/([0-9\-]+)#', $href->textContent, $matches))
                 {
-                    $episode_info['date'] = \DateTimeImmutable::createFromFormat('Y-m-d', $matches[1]);
+                    $episode_info['date'] = DateTimeImmutable::createFromFormat('Y-m-d', $matches[1]);
                     $episode_info['date'] = $episode_info['date']->setTime(0,0);
                 }
             }
@@ -60,7 +62,7 @@ class Episode extends Common
             $runtime = preg_replace('/([0-9]+)\s+minutes/', 'PT$1M', $episode_info['runtime_string']);
             try
             {
-                $episode_info['runtime'] = new \DateInterval($runtime);
+                $episode_info['runtime'] = new DateInterval($runtime);
             }
             catch (Exception $e)
             {
@@ -110,7 +112,16 @@ class Episode extends Common
         ];
     }
 
-    public static function scrape(DOMXPath $xpath, $language = null, $ordering = null, objects\Series $series = null): objects\Episode
+    /**
+     * Scrape episode page
+     * @param DOMXPath $xpath
+     * @param string|null $language Language code
+     * @param string|null $ordering Episode order
+     * @param objects\Series|null $series Series object
+     * @return objects\Episode Episode object
+     * @throws exceptions\HTTPError HTTP error fetching episode page
+     */
+    public static function scrape(DOMXPath $xpath, ?string $language = null, ?string $ordering = null, ?objects\Series $series = null): objects\Episode
     {
         $scraper = new static($xpath, $language);
         //list($season, $episode) = $scraper->episode($ordering);

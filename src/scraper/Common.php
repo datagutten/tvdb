@@ -25,6 +25,12 @@ class Common
         return $languages;
     }
 
+    /**
+     * Get language code for default language
+     * @param DOMXPath $xpath XPath object
+     * @return string Language code for default language
+     * @throws exceptions\TVDBException Unable to find default language
+     */
     public static function default_language(DOMXPath $xpath): string
     {
         $language = $xpath->query('//span[@class="label label-info change_translation"]/@data-language');
@@ -32,7 +38,7 @@ class Common
         {
             $title = $xpath->query('//h1')->item(0)->textContent;
             $title = trim($title);
-            $language = $xpath->query($q=sprintf('//div[@data-title="%s"]/@data-language', $title));
+            $language = $xpath->query(sprintf('//div[@data-title="%s"]/@data-language', $title));
         }
 
         if($language->length == 1)

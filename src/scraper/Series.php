@@ -26,17 +26,17 @@ class Series
      */
     public function scrape_data(): array
     {
-        if (empty($this->language))
+        try
         {
-            try
-            {
-                $this->language = Common::default_language($this->xpath);
-            }
-            catch (exceptions\TVDBException)
-            {
-                $this->language = 'eng';
-            }
+            $default_language = Common::default_language($this->xpath);
         }
+        catch (exceptions\TVDBException)
+        {
+            $default_language = 'eng'; //Fall back to english if default language is not found
+        }
+
+        if (empty($this->language))
+            $this->language = $default_language;
 
         list($title, $overview) = $this->translation($this->language);
         return [
@@ -45,6 +45,7 @@ class Series
             'banners' => $this->banners(),
             'orders' => $this->orders(),
             'language' => $this->language,
+            'default_language' => $default_language,
         ];
     }
 

@@ -21,7 +21,16 @@ class Series extends TVDBObject
      * @var string[] Series episode orders
      */
     public array $orders;
-    public ?string $language = null;
+
+    /**
+     * @var string Selected language or default language if no language is selected
+     */
+
+    public string $language;
+    /**
+     * @var string Series default language
+     */
+    public string $default_language;
 
     /**
      * @var string Series overview
@@ -47,12 +56,13 @@ class Series extends TVDBObject
     public function __construct(array $data = [], string|null $slug = null, string|null $language = null, TVDBScrape|null $tvdb = null, scraper\Series|null $scraper = null)
     {
         $this->slug = $slug;
-        $this->language = $language;
+        if(!empty($language))
+            $this->language = $language;
         if (!empty($tvdb))
         {
             $this->tvdb = $tvdb;
             $xpath = $this->tvdb->get_xpath($this->url());
-            $this->scraper = new scraper\Series($xpath, $this->language);
+            $this->scraper = new scraper\Series($xpath, $language);
         }
         if (!empty($scraper))
             $this->scraper = $scraper;

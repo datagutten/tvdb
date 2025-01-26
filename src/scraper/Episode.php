@@ -113,6 +113,17 @@ class Episode extends Common
     }
 
     /**
+     * Get translation
+     * @param string $language Language code
+     * @return string[]|null[] Array containing title and overview translated to the given language
+     * @throws exceptions\TranslationNotFound Translation for given language not found
+     */
+    public function get_translation(string $language): array
+    {
+        return parent::translation($this->xpath, $language);
+    }
+
+    /**
      * Scrape episode page
      * @param DOMXPath $xpath
      * @param string|null $language Language code

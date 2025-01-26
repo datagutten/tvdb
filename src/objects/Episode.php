@@ -132,6 +132,17 @@ class Episode extends EpisodeFormat
         return $this;
     }
 
+    /**
+     * Get translation
+     * @param string $language Language code
+     * @return string[]|null[] Array containing title and overview translated to the given language
+     * @throws exceptions\TranslationNotFound Translation for given language not found
+     */
+    public function translation(string $language): array
+    {
+        return $this->scraper->get_translation($language);
+    }
+
     public function episode_title(): string
     {
         return $this->episode_number();

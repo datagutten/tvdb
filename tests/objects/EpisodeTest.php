@@ -38,6 +38,14 @@ class EpisodeTest extends TestCase
         $this->assertEquals(27, $episode->episode);
     }
 
+    public function testEpisodeImage()
+    {
+        $tvdb = new TVDBScrape();
+        $series = $tvdb->series('the-daltons', 'fra');
+        $episode = $series->episode(4347411);
+        $this->assertEquals('https://artworks.thetvdb.com/banners/episodes/255654/4347411.jpg', $episode->image);
+    }
+
     public function testTranslatedTitle()
     {
         $tvdb = new TVDBScrape();

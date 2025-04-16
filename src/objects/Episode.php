@@ -26,6 +26,10 @@ class Episode extends EpisodeFormat
 
     //public string $language;
     public string $production_code;
+    /**
+     * @var string Episode image URL
+     */
+    public string $image;
     public int $id;
 
     protected scraper\Episode $scraper;
@@ -117,6 +121,8 @@ class Episode extends EpisodeFormat
         $this->id = $info['id'];
         if (!empty($info['production_code']))
             $this->production_code = $info['production_code'];
+        if(!empty($info['image']))
+            $this->image = $info['image'];
 
         try
         {

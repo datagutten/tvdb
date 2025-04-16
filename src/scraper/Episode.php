@@ -73,6 +73,10 @@ class Episode extends Common
         if (!empty($id))
             $episode_info['id'] = (int)$id->item(0)->textContent;
 
+        $image = $this->xpath->query('//a[@rel="artwork_image"]');
+        if (!empty($image))
+            $episode_info['image'] = $image->item(0)->getAttribute('href');
+
         return $episode_info;
     }
 

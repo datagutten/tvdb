@@ -153,4 +153,15 @@ class Episode extends EpisodeFormat
     {
         return $this->episode_number();
     }
+
+    /**
+     * Get original title for the episode
+     * @return string
+     * @throws exceptions\TranslationNotFound
+     */
+    public function original_title(): string
+    {
+        $translation = $this->translation($this->series_obj->default_language);
+        return $translation[0];
+    }
 }

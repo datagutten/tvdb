@@ -46,6 +46,15 @@ class EpisodeTest extends TestCase
         $this->assertEquals('https://artworks.thetvdb.com/banners/episodes/255654/4347411.jpg', $episode->image);
     }
 
+    public function testOriginalTitle()
+    {
+        $tvdb = new TVDBScrape();
+        $series = $tvdb->series('pettson-and-findus', 'nor');
+        $episode = $series->episode(433240);
+        $this->assertEquals('Tuppens minut', $episode->original_title());
+        $this->assertEquals('Hanespetaklet', $episode->title);
+    }
+
     public function testTranslatedTitle()
     {
         $tvdb = new TVDBScrape();

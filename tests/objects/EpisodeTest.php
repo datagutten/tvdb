@@ -62,4 +62,21 @@ class EpisodeTest extends TestCase
         $episode = $series->episode(9864389);
         $this->assertEquals('Düm-rådet', $episode->title);
     }
+
+    public function testTranslatedTitle2()
+    {
+        $tvdb = new TVDBScrape();
+        $series = $tvdb->series('fancy-nancy', 'nor');
+        $episode = $series->episode(6763512);
+        $this->assertEquals('Nancy Goes to Work', $episode->translation('eng')[0]);
+    }
+
+    public function testTranslatedDescription()
+    {
+        $tvdb = new TVDBScrape();
+        $tvdb->cache_breaker = true;
+        $series = $tvdb->series('135781-show', 'nor');
+        $episode = $series->episode(5390178);
+        $this->assertNotEmpty($episode->description);
+    }
 }

@@ -31,6 +31,10 @@ class Episode extends EpisodeFormat
      */
     public string $image;
     public int $id;
+    /**
+     * @var bool Fall back to default language when the episode has no translation in the current language
+     */
+    public bool $use_fallback_language = false;
 
     protected scraper\Episode $scraper;
     protected TVDBScrape $tvdb;
@@ -96,11 +100,9 @@ class Episode extends EpisodeFormat
     /**
      * @return $this Episode object
      * @throws exceptions\EpisodeNotFound Episode has no number in selected ordering
-     * @throws exceptions\HTTPError HTTP error fetching episode page
      */
     public function scrape(): static
     {
-        $xpath = $this->tvdb->get_xpath($this->url());
         if (empty($this->season_obj->ordering))
         {
             try {
@@ -126,13 +128,27 @@ class Episode extends EpisodeFormat
 
         try
         {
-            list($this->title, $this->description) = scraper\Common::translation($xpath, $this->series_obj->language);
+            list($this->title, $this->description) = $this->translation($this->series_obj->language);
         }
         catch (exceptions\TranslationNotFound $e)
         {
-            //TODO: Use fallback language?
-            $this->title = '';
-            $this->description = '';
+            if ($this->use_fallback_language)
+            {
+                try
+                {
+                    list($this->title, $this->description) = $this->translation($this->series_obj->default_language);
+                }
+                catch (exceptions\TranslationNotFound $e)
+                {
+                    $this->title = '';
+                    $this->description = '';
+                }
+            }
+            else
+            {
+                $this->title = '';
+                $this->description = '';
+            }
         }
 
         return $this;

@@ -50,16 +50,6 @@ class Series
     }
 
     /**
-     * @return objects\Series
-     * @deprecated
-     */
-    public function scrape(): objects\Series
-    {
-        return new objects\Series($this->scrape_data());
-    }
-
-
-    /**
      * Get series banners
      * @return array Banner URLs
      */
